@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "X Quick Blocker",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "在 X(Twitter) 上一键屏蔽用户，或按关键词扫描并批量屏蔽（默认需人工确认）。",
   "permissions": ["storage"],
   "host_permissions": [

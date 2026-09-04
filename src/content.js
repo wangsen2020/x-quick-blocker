@@ -20,6 +20,7 @@
     minDelayMs: 1500,            // 每次屏蔽之间的间隔
     jitterMs: 800,
     maxPerRun: 50,               // 单次批量上限
+    removeBlockedDom: true,      // 屏蔽成功后把该作者的推文/评论从当前页面移除
     logLimit: 500,
   };
 
@@ -199,11 +200,16 @@
     if (res.status === 429) throw new RateLimited('触发接口限流（429）');
     const txt = await res.text();
     if (!res.ok) {
-      let msg = `${res.status}`;
+      let msg = `HTTP ${res.status}`;
       try {
         const j = JSON.parse(txt);
         if (j.errors && j.errors[0]) msg = `${j.errors[0].code || res.status}: ${j.errors[0].message}`;
-      } catch (e) {}
+      } catch (e) {
+        // 不是 JSON（可能是 HTML 错误页）：带上片段，否则只剩状态码没法排查
+        const snip = String(txt || '').replace(/\s+/g, ' ').slice(0, 120);
+        if (snip) msg += ` — ${snip}`;
+      }
+      console.warn('[xqb] blocks 接口失败', res.status, body, String(txt || '').slice(0, 300));
       throw new Error(msg);
     }
     return true;
@@ -313,7 +319,15 @@
         b.classList.add('xqb-done');
         blockedThisSession.add(info.handle.toLowerCase());
         pushLog({ handle: info.handle, name: info.name, reason: '手动', ok: true, url: info.url });
-        toast(`已屏蔽 @${info.handle}`);
+        candidates.delete(info.handle.toLowerCase());
+        renderCandidates();
+        updateBadge();
+        if (cfg.removeBlockedDom) {
+          const n = removeByHandle(info.handle);
+          toast(`已屏蔽 @${info.handle}${n > 1 ? `，移除 ${n} 条` : ''}`);
+        } else {
+          toast(`已屏蔽 @${info.handle}`);
+        }
       } catch (err) {
         b.textContent = '失败';
         b.classList.add('xqb-fail');
@@ -361,7 +375,31 @@
     }
   }
 
+  // 屏蔽成功后把该作者在当前页面上的所有推文/评论移除。
+  // X 不会自己刷新已渲染的节点，评论区尤其明显——留在那里没法判断到底成没成。
+  // 优先移除外层的 cellInnerDiv，否则会留下一个空壳占位。
+  function removeByHandle(handle) {
+    const key = String(handle || '').toLowerCase();
+    if (!key) return 0;
+    let n = 0;
+    document.querySelectorAll('article[data-testid="tweet"]').forEach((a) => {
+      let hk = (a.dataset.xqbHandle || '').toLowerCase();
+      if (!hk) {
+        try { hk = (tweetInfo(a).handle || '').toLowerCase(); } catch (e) {}
+      }
+      if (hk !== key) return;
+      const node = a.closest('[data-testid="cellInnerDiv"]') || a;
+      node.remove();
+      n++;
+    });
+    return n;
+  }
+
   function scanAll() {
+    // 已屏蔽的账号如果被 X 重新渲染回来（切 Tab、虚拟列表回收复用），再清一次
+    if (cfg.removeBlockedDom && blockedThisSession.size) {
+      for (const hk of blockedThisSession) removeByHandle(hk);
+    }
     document.querySelectorAll('article[data-testid="tweet"]').forEach(decorate);
   }
 
@@ -378,39 +416,69 @@
     running = true;
     stopFlag = false;
     let backoff = 0;
-    let done = 0, fail = 0;
+    let done = 0, fail = 0, lastErr = '';
     setRunUI(true);
-    for (const c of list) {
-      if (stopFlag) break;
-      if (done + fail >= cfg.maxPerRun) { toast(`已达单次上限 ${cfg.maxPerRun}，停止`); break; }
-      try {
-        await blockUser(c.handle);
-        done++;
-        blockedThisSession.add(c.handle.toLowerCase());
-        candidates.delete(c.handle.toLowerCase());
-        pushLog({ handle: c.handle, name: c.name, reason: c.hit ? `命中「${c.hit}」` : '批量', ok: true, url: c.url });
-        backoff = 0;
-      } catch (err) {
-        if (err instanceof RateLimited) {
-          backoff = backoff ? Math.min(backoff * 2, 15 * 60_000) : 60_000;
-          toast(`触发限流，暂停 ${Math.round(backoff / 1000)}s 后继续`, true);
-          setStatus(`限流退避中… ${Math.round(backoff / 1000)}s`);
-          await sleep(backoff);
+    // 整个循环包在 try/finally 里。原来没有 finally：循环体里任何一处抛错
+    // （包括面板刷新）都会让 running 永久停在 true，之后再点按钮直接 return，
+    // 表现就是「只成功一个，然后再也点不动」。
+    try {
+      for (let i = 0; i < list.length; i++) {
+        const c = list[i];
+        if (stopFlag) break;
+        if (done + fail >= cfg.maxPerRun) { toast(`已达单次上限 ${cfg.maxPerRun}，停止`); break; }
+
+        let rlRetry = 0;
+        for (;;) {
           if (stopFlag) break;
-          continue;
+          try {
+            await blockUser(c.handle);
+            done++;
+            backoff = 0;
+            blockedThisSession.add(c.handle.toLowerCase());
+            candidates.delete(c.handle.toLowerCase());
+            if (cfg.removeBlockedDom) removeByHandle(c.handle);
+            pushLog({ handle: c.handle, name: c.name, reason: c.hit ? `命中「${c.hit}」` : '批量', ok: true, url: c.url });
+            break;
+          } catch (err) {
+            // 限流：重试「当前这个」，最多 3 次。原实现是 continue 到下一个，
+            // 被限流的账号既没屏蔽也没计入失败，静默丢失。
+            if (err instanceof RateLimited && rlRetry < 3) {
+              rlRetry++;
+              backoff = backoff ? Math.min(backoff * 2, 15 * 60_000) : 60_000;
+              toast(`触发限流，暂停 ${Math.round(backoff / 1000)}s 后重试 @${c.handle}`, true);
+              setStatus(`限流退避中… ${Math.round(backoff / 1000)}s（第 ${rlRetry} 次重试 @${c.handle}）`);
+              await sleep(backoff);
+              continue;
+            }
+            fail++;
+            lastErr = friendly(err);
+            console.warn('[xqb] 屏蔽失败', c.handle, err);
+            pushLog({ handle: c.handle, name: c.name, reason: '批量', ok: false, err: lastErr });
+            break;
+          }
         }
-        fail++;
-        pushLog({ handle: c.handle, name: c.name, reason: '批量', ok: false, err: friendly(err) });
+
+        // 面板刷新失败不能中断批量
+        try {
+          renderCandidates();
+          updateBadge();
+          setStatus(`进行中：成功 ${done} / 失败 ${fail} / 剩 ${Math.max(0, list.length - done - fail)}` +
+            (lastErr ? `｜最近失败：${lastErr}` : ''));
+        } catch (e) {
+          console.warn('[xqb] 面板刷新出错（不影响批量）', e);
+        }
+
+        if (i < list.length - 1 && !stopFlag) {
+          await sleep(cfg.minDelayMs + Math.random() * cfg.jitterMs);
+        }
       }
-      renderCandidates();
-      updateBadge();
-      setStatus(`进行中：成功 ${done} / 失败 ${fail} / 剩 ${Math.max(0, list.length - done - fail)}`);
-      await sleep(cfg.minDelayMs + Math.random() * cfg.jitterMs);
+    } finally {
+      running = false;
+      setRunUI(false);
+      const tail = fail && lastErr ? `｜最近失败：${lastErr}` : '';
+      setStatus(`完成：成功 ${done}，失败 ${fail}${tail}`);
+      toast(`批量结束：成功 ${done}，失败 ${fail}`);
     }
-    running = false;
-    setRunUI(false);
-    setStatus(`完成：成功 ${done}，失败 ${fail}`);
-    toast(`批量结束：成功 ${done}，失败 ${fail}`);
   }
 
   let autoTimer = null;
@@ -611,6 +679,7 @@
       toggle('推文旁显示「屏蔽」按钮', 'showInlineButton', () => location.reload()),
       toggle('开启关键词扫描', 'scanEnabled', () => { candidates.clear(); renderCandidates(); scanAll(); }),
       toggle('全自动（命中即屏蔽，不弹确认）⚠️', 'autoBlock'),
+      toggle('屏蔽后立即从页面移除其推文/评论', 'removeBlockedDom'),
       h('div', { class: 'xqb-sub' }, '匹配范围：'),
       toggle('正文', 'matchText'), toggle('昵称', 'matchName'),
       toggle('用户名', 'matchHandle'), toggle('简介（能抓到时）', 'matchBio'),
