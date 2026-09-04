@@ -1,12 +1,21 @@
 .xqb-btn-wrap { display:flex; align-items:center; }
-.xqb-btn {
-  font: 500 12px/1 system-ui,-apple-system,"Segoe UI",sans-serif;
-  color:#f4212e; background:transparent; border:1px solid rgba(244,33,46,.5);
-  border-radius:999px; padding:5px 10px; cursor:pointer; margin-left:6px;
+/* 用 !important + 双类名提高优先级：X 自己的按钮样式规则会覆盖掉普通声明 */
+.xqb-btn-wrap .xqb-btn, button.xqb-btn {
+  font: 500 12px/1 system-ui,-apple-system,"Segoe UI",sans-serif !important;
+  color:#f4212e !important;
+  background:transparent !important;
+  border:1px solid rgba(244,33,46,.55) !important;
+  border-radius:999px !important;
+  padding:5px 10px !important;
+  margin-left:6px !important;
+  cursor:pointer !important;
+  line-height:1 !important;
+  min-width:0 !important;
+  height:auto !important;
 }
-.xqb-btn:hover { background:rgba(244,33,46,.12); }
-.xqb-btn.xqb-done { color:#71767b; border-color:rgba(113,118,123,.5); }
-.xqb-btn.xqb-fail { color:#ffd400; border-color:rgba(255,212,0,.5); }
+.xqb-btn-wrap .xqb-btn:hover, button.xqb-btn:hover { background:rgba(244,33,46,.14) !important; }
+.xqb-btn-wrap .xqb-btn.xqb-done, button.xqb-btn.xqb-done { color:#71767b !important; border-color:rgba(113,118,123,.5) !important; }
+.xqb-btn-wrap .xqb-btn.xqb-fail, button.xqb-btn.xqb-fail { color:#ffd400 !important; border-color:rgba(255,212,0,.55) !important; }
 
 article.xqb-hit { box-shadow: inset 3px 0 0 #f4212e; background: rgba(244,33,46,.045); }
 
