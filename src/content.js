@@ -37,13 +37,47 @@
   const blockedThisSession = new Set();
   let running = false;
   let stopFlag = false;
+  let scanTimer = null;
 
   /* ---------------- storage ---------------- */
   const store = chrome.storage.local;
 
+  // 在 chrome://extensions 里重新加载/更新扩展后，旧页面里残留的内容脚本
+  // 会失去扩展上下文，之后任何 chrome.* 调用都会抛 "Extension context invalidated"
+  // （MV3 下表现为指向 store.set 那一行的未捕获 Promise rejection）。
+  // 统一从这里进出：上下文没了就安静收摊，不再往控制台丢错。
+  let ctxDead = false;
+  function extAlive() {
+    if (ctxDead) return false;
+    try { return !!(chrome.runtime && chrome.runtime.id); } catch (e) { return false; }
+  }
+  function teardown() {
+    if (ctxDead) return;
+    ctxDead = true;
+    try { mo.disconnect(); } catch (e) {}
+    try { clearTimeout(mo._t); } catch (e) {}
+    try { clearInterval(scanTimer); } catch (e) {}
+    try { clearTimeout(idmapTimer); } catch (e) {}
+  }
+  function storeSet(obj) {
+    if (!extAlive()) return;
+    try {
+      store.set(obj, () => { if (chrome.runtime && chrome.runtime.lastError) teardown(); });
+    } catch (e) { teardown(); }
+  }
+  function storeGet(keys, cb) {
+    if (!extAlive()) { cb({}); return; }
+    try {
+      store.get(keys, (r) => {
+        if (chrome.runtime && chrome.runtime.lastError) { teardown(); cb({}); return; }
+        cb(r || {});
+      });
+    } catch (e) { teardown(); cb({}); }
+  }
+
   function loadAll() {
     return new Promise((res) => {
-      store.get(['xqb_config', 'xqb_log', 'xqb_idmap', 'xqb_qid', 'xqb_feat'], (r) => {
+      storeGet(['xqb_config', 'xqb_log', 'xqb_idmap', 'xqb_qid', 'xqb_feat'], (r) => {
         cfg = Object.assign({}, DEFAULTS, r.xqb_config || {});
         log = r.xqb_log || [];
         if (r.xqb_idmap) idMap = new Map(Object.entries(r.xqb_idmap));
@@ -53,25 +87,28 @@
       });
     });
   }
-  const saveCfg = () => store.set({ xqb_config: cfg });
-  const saveQid = () => store.set({ xqb_qid: Object.fromEntries(qidMap) });
-  const saveFeat = () => store.set({ xqb_feat: gqlFeatures });
-  const saveLog = () => store.set({ xqb_log: log.slice(0, cfg.logLimit) });
+  const saveCfg = () => storeSet({ xqb_config: cfg });
+  const saveQid = () => storeSet({ xqb_qid: Object.fromEntries(qidMap) });
+  const saveFeat = () => storeSet({ xqb_feat: gqlFeatures });
+  const saveLog = () => storeSet({ xqb_log: log.slice(0, cfg.logLimit) });
   let idmapTimer = null;
   function saveIdMap() {
     clearTimeout(idmapTimer);
     idmapTimer = setTimeout(() => {
       const entries = Array.from(idMap.entries()).slice(-3000);
-      store.set({ xqb_idmap: Object.fromEntries(entries) });
+      storeSet({ xqb_idmap: Object.fromEntries(entries) });
     }, 3000);
   }
 
-  chrome.storage.onChanged.addListener((ch, area) => {
-    if (area === 'local' && ch.xqb_config) {
-      cfg = Object.assign({}, DEFAULTS, ch.xqb_config.newValue || {});
-      syncPanelFromCfg();
-    }
-  });
+  try {
+    chrome.storage.onChanged.addListener((ch, area) => {
+      if (!extAlive()) return;
+      if (area === 'local' && ch.xqb_config) {
+        cfg = Object.assign({}, DEFAULTS, ch.xqb_config.newValue || {});
+        syncPanelFromCfg();
+      }
+    });
+  } catch (e) {}
 
   /* ---------------- page hook messages ---------------- */
   window.addEventListener('message', (ev) => {
@@ -826,6 +863,6 @@ DM me`)),
     detectSelf();
     scanAll();
     mo.observe(document.body, { childList: true, subtree: true });
-    setInterval(scanAll, 2000);
+    scanTimer = setInterval(scanAll, 2000);
   });
 })();
