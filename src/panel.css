@@ -93,15 +93,21 @@ article.xqb-hit { box-shadow: inset 3px 0 0 #f4212e; background: rgba(244,33,46,
   font:13px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif; box-shadow:0 10px 30px rgba(0,0,0,.5);
 }
 .xqb-panel.xqb-open { display:flex; }
-/* 头/标签/状态条不参与压缩，中间滚动区吃掉剩余高度 */
+/* 头/标签/状态条固定高度，不参与压缩；中间内容区吃掉剩余高度 */
 .xqb-head, .xqb-tabs, .xqb-status { flex:0 0 auto; }
-.xqb-scroll { flex:1 1 auto; min-height:0; overflow-y:auto; overflow-x:hidden; overscroll-behavior:contain; }
+.xqb-content { flex:1 1 auto; min-height:0; display:flex; flex-direction:column; }
+/* 每个 tab body 都是撑满内容区的 flex 列；隐藏态由内联 display:none 覆盖 */
+.xqb-body { flex:1 1 auto; min-height:0; display:flex; flex-direction:column; padding:10px 12px; overflow-y:auto; overscroll-behavior:contain; }
+/* 列表区 flex:1 填满并自己滚动；操作行固定在底部不被挤压 */
+.xqb-list { flex:1 1 auto; min-height:0; overflow-y:auto; overscroll-behavior:contain; }
+.xqb-body > .xqb-actions { flex:0 0 auto; }
+/* 表单类 body 的子项不许被压缩 */
+.xqb-field, .xqb-toggle, .xqb-sub, .xqb-note { flex:0 0 auto; }
 .xqb-head { display:flex; justify-content:space-between; align-items:center; padding:10px 12px; border-bottom:1px solid #2f3336; font-weight:600; cursor:move; user-select:none; -webkit-user-select:none; }
 .xqb-x { background:none; border:0; color:#71767b; font-size:18px; cursor:pointer; }
 .xqb-tabs { display:flex; border-bottom:1px solid #2f3336; }
 .xqb-tab { flex:1; background:none; border:0; color:#71767b; padding:9px 0; cursor:pointer; font:13px system-ui; text-align:center; }
 .xqb-tab-on { color:#e7e9ea; box-shadow: inset 0 -2px 0 #1d9bf0; }
-.xqb-body { padding:10px 12px; }
 .xqb-row { display:flex; gap:8px; align-items:flex-start; padding:8px 0; border-bottom:1px solid #22252a; }
 .xqb-row-main { flex:1; min-width:0; }
 .xqb-row-top { display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
@@ -110,7 +116,7 @@ article.xqb-hit { box-shadow: inset 3px 0 0 #f4212e; background: rgba(244,33,46,
 .xqb-snippet { color:#71767b; font-size:12px; margin-top:2px; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
 .xqb-ok { color:#00ba7c; } .xqb-bad { color:#f4212e; }
 .xqb-empty { color:#71767b; padding:14px 0; text-align:center; }
-.xqb-actions { display:flex; gap:6px; margin-bottom:8px; flex-wrap:wrap; }
+.xqb-actions { display:flex; gap:6px; flex-wrap:wrap; padding-top:8px; margin-top:8px; border-top:1px solid #2f3336; }
 .xqb-primary { background:#f4212e; color:#fff; border:0; border-radius:999px; padding:6px 14px; cursor:pointer; font-weight:600; }
 .xqb-primary:disabled { opacity:.5; cursor:default; }
 .xqb-ghost { background:transparent; color:#e7e9ea; border:1px solid #536471; border-radius:999px; padding:6px 12px; cursor:pointer; }

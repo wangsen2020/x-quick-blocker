@@ -940,12 +940,13 @@
     }
 
     const candBody = h('div', { class: 'xqb-body' },
+      elCand,
+      // 操作行固定在面板底部，不随列表滚动
       h('div', { class: 'xqb-actions' },
         h('button', { class: 'xqb-ghost', onclick: () => { candidates.forEach((c) => (c.checked = true)); renderCandidates(); } }, t('btnSelectAll', null, `Select all`)),
         h('button', { class: 'xqb-ghost', onclick: () => { candidates.clear(); renderCandidates(); updateBadge(); } }, t('btnClearList', null, `Clear`)),
         elRunBtn, elStopBtn
-      ),
-      elCand
+      )
     );
 
     const kwBody = h('div', { class: 'xqb-body' },
@@ -983,8 +984,8 @@ DM me`)),
       h('span', {}, 'X Quick Blocker'),
       h('button', { class: 'xqb-x', onclick: () => panel.classList.remove('xqb-open') }, '×')
     );
-    const scroll = h('div', { class: 'xqb-scroll' }, candBody, kwBody, logBody, setBody);
-    panel = h('div', { class: 'xqb-panel' }, head, tabBar, scroll, elStatus);
+    const content = h('div', { class: 'xqb-content' }, candBody, kwBody, logBody, setBody);
+    panel = h('div', { class: 'xqb-panel' }, head, tabBar, content, elStatus);
     selectTab('cand');
 
     function togglePanel() {
