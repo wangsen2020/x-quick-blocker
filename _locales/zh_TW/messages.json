@@ -1,6 +1,209 @@
 {
-  "btnBlockTip":   { "message": "封鎖 @$HANDLE$", "placeholders": { "handle": { "content": "$1" } } },
-  "btnWorking":    { "message": "封鎖中…" },
-  "btnBlocked":    { "message": "已封鎖" },
-  "btnFailed":     { "message": "失敗，點擊重試" }
+  "btnBlockTip": {
+    "message": "封鎖 @$1"
+  },
+  "btnWorking": {
+    "message": "封鎖中…"
+  },
+  "btnBlocked": {
+    "message": "已封鎖"
+  },
+  "btnFailed": {
+    "message": "失敗，點擊重試"
+  },
+  "tabCandidates": {
+    "message": "候選"
+  },
+  "tabKeywords": {
+    "message": "詞庫"
+  },
+  "tabLog": {
+    "message": "日誌"
+  },
+  "tabSettings": {
+    "message": "設定"
+  },
+  "btnSelectAll": {
+    "message": "全選"
+  },
+  "btnClearList": {
+    "message": "清空"
+  },
+  "btnBlockChecked": {
+    "message": "封鎖已勾選"
+  },
+  "btnStop": {
+    "message": "停止"
+  },
+  "btnIgnore": {
+    "message": "忽略"
+  },
+  "btnUnblock": {
+    "message": "解除"
+  },
+  "btnUnblocked": {
+    "message": "已解除"
+  },
+  "statusReady": {
+    "message": "就緒"
+  },
+  "statusRunning": {
+    "message": "進行中：成功 $1 / 失敗 $2 / 剩 $3"
+  },
+  "statusDone": {
+    "message": "完成：成功 $1，失敗 $2"
+  },
+  "statusLastFail": {
+    "message": "｜最近失敗：$1"
+  },
+  "statusBackoff": {
+    "message": "限流退避中… $1s（第 $2 次重試 @$3）"
+  },
+  "toastBatchEnd": {
+    "message": "批次結束：成功 $1，失敗 $2"
+  },
+  "toastRateLimited": {
+    "message": "觸發限流，暫停 $1s 後重試 @$2"
+  },
+  "toastMaxPerRun": {
+    "message": "已達單次上限 $1，停止"
+  },
+  "toastNoChecked": {
+    "message": "沒有勾選的候選"
+  },
+  "toastStopRequested": {
+    "message": "已請求停止"
+  },
+  "toastBlocked": {
+    "message": "已封鎖 @$1"
+  },
+  "toastBlockedRemoved": {
+    "message": "已封鎖 @$1，移除 $2 則"
+  },
+  "toastBlockFailed": {
+    "message": "封鎖 @$1 失敗：$2"
+  },
+  "toastListSaved": {
+    "message": "$1 已儲存（$2 條）"
+  },
+  "confirmBatch": {
+    "message": "將封鎖 $1 個帳號，每個間隔約 $2s。確認？"
+  },
+  "emptyScanOn": {
+    "message": "暫無命中，繼續往下刷即可"
+  },
+  "emptyScanOff": {
+    "message": "掃描未開啟（設定裡打開）"
+  },
+  "emptyLog": {
+    "message": "暫無記錄"
+  },
+  "optEnabled": {
+    "message": "啟用外掛"
+  },
+  "optInlineButton": {
+    "message": "推文旁顯示封鎖圖示"
+  },
+  "optScan": {
+    "message": "開啟關鍵字掃描"
+  },
+  "optAuto": {
+    "message": "全自動（命中即封鎖，不彈確認）⚠️"
+  },
+  "optRemoveDom": {
+    "message": "封鎖後立即從頁面移除其推文/留言"
+  },
+  "secMatchScope": {
+    "message": "匹配範圍："
+  },
+  "optMatchText": {
+    "message": "正文"
+  },
+  "optMatchName": {
+    "message": "暱稱"
+  },
+  "optMatchHandle": {
+    "message": "使用者名稱"
+  },
+  "optMatchBio": {
+    "message": "簡介（能抓到時）"
+  },
+  "secThrottle": {
+    "message": "節流："
+  },
+  "fieldDelay": {
+    "message": "間隔 ms"
+  },
+  "fieldJitter": {
+    "message": "抖動 ms"
+  },
+  "fieldMaxPerRun": {
+    "message": "單次上限"
+  },
+  "noteThrottle": {
+    "message": "批次操作過快可能觸發 X 的限流甚至風控，建議間隔 ≥1.5s、單次 ≤50。"
+  },
+  "labelKeywords": {
+    "message": "關鍵字（一行一個，不分大小寫）"
+  },
+  "labelRegexes": {
+    "message": "正規表示式（一行一個，JS 語法，不含斜線）"
+  },
+  "labelWhitelist": {
+    "message": "白名單 handle（一行一個，不帶 @）"
+  },
+  "phKeywords": {
+    "message": "crypto airdrop\n代開\n加V"
+  },
+  "phRegexes": {
+    "message": "^(?=.*空投)(?=.*私訊).*$"
+  },
+  "phWhitelist": {
+    "message": "yourfriend"
+  },
+  "reasonManual": {
+    "message": "手動"
+  },
+  "reasonBatch": {
+    "message": "批次"
+  },
+  "reasonHit": {
+    "message": "命中「$1」"
+  },
+  "errNoCt0": {
+    "message": "未登入或找不到 ct0 cookie"
+  },
+  "errRateLimited": {
+    "message": "觸發介面限流（429）"
+  },
+  "errNoUserId": {
+    "message": "拿不到 user_id（$1）"
+  },
+  "errNoQueryId": {
+    "message": "尚未觀察到 UserByScreenName 的 queryId"
+  },
+  "errUbsnFailed": {
+    "message": "UserByScreenName 失敗：$1"
+  },
+  "errUbsnFeatures": {
+    "message": "UserByScreenName features 協商失敗"
+  },
+  "errNoIdStr": {
+    "message": "回應無 id_str"
+  },
+  "hintVisitProfile": {
+    "message": "｜先隨便點開一個使用者主頁一次，外掛就能學到查詢參數（只需一次，之後會記住）"
+  },
+  "popupNote": {
+    "message": "詞庫、白名單、節流參數在 x.com 頁面右下角 🛡 面板裡設定。"
+  },
+  "extName": {
+    "message": "X Quick Blocker"
+  },
+  "extDesc": {
+    "message": "在 X(Twitter) 上一鍵封鎖使用者，或按關鍵字掃描並批次封鎖（預設需人工確認）。"
+  },
+  "btnFailedShort": {
+    "message": "失敗"
+  }
 }

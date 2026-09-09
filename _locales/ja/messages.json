@@ -1,6 +1,209 @@
 {
-  "btnBlockTip":   { "message": "@$HANDLE$ をブロック", "placeholders": { "handle": { "content": "$1" } } },
-  "btnWorking":    { "message": "ブロック中…" },
-  "btnBlocked":    { "message": "ブロック済み" },
-  "btnFailed":     { "message": "失敗しました。クリックで再試行" }
+  "btnBlockTip": {
+    "message": "@$1 をブロック"
+  },
+  "btnWorking": {
+    "message": "ブロック中…"
+  },
+  "btnBlocked": {
+    "message": "ブロック済み"
+  },
+  "btnFailed": {
+    "message": "失敗しました。クリックで再試行"
+  },
+  "tabCandidates": {
+    "message": "候補"
+  },
+  "tabKeywords": {
+    "message": "フィルター"
+  },
+  "tabLog": {
+    "message": "ログ"
+  },
+  "tabSettings": {
+    "message": "設定"
+  },
+  "btnSelectAll": {
+    "message": "すべて選択"
+  },
+  "btnClearList": {
+    "message": "クリア"
+  },
+  "btnBlockChecked": {
+    "message": "選択をブロック"
+  },
+  "btnStop": {
+    "message": "停止"
+  },
+  "btnIgnore": {
+    "message": "無視"
+  },
+  "btnUnblock": {
+    "message": "解除"
+  },
+  "btnUnblocked": {
+    "message": "解除済み"
+  },
+  "statusReady": {
+    "message": "準備完了"
+  },
+  "statusRunning": {
+    "message": "実行中：成功 $1 / 失敗 $2 / 残り $3"
+  },
+  "statusDone": {
+    "message": "完了：成功 $1、失敗 $2"
+  },
+  "statusLastFail": {
+    "message": "｜直近のエラー：$1"
+  },
+  "statusBackoff": {
+    "message": "レート制限中… $1秒待機（@$3 の $2 回目の再試行）"
+  },
+  "toastBatchEnd": {
+    "message": "一括処理終了：成功 $1、失敗 $2"
+  },
+  "toastRateLimited": {
+    "message": "レート制限：$1秒後に @$2 を再試行"
+  },
+  "toastMaxPerRun": {
+    "message": "1 回の上限 $1 に達したため停止"
+  },
+  "toastNoChecked": {
+    "message": "選択されていません"
+  },
+  "toastStopRequested": {
+    "message": "停止をリクエストしました"
+  },
+  "toastBlocked": {
+    "message": "@$1 をブロックしました"
+  },
+  "toastBlockedRemoved": {
+    "message": "@$1 をブロック — $2 件を削除"
+  },
+  "toastBlockFailed": {
+    "message": "@$1 のブロックに失敗：$2"
+  },
+  "toastListSaved": {
+    "message": "$1 を保存しました（$2 件）"
+  },
+  "confirmBatch": {
+    "message": "$1 件のアカウントを約 $2 秒間隔でブロックします。続行しますか？"
+  },
+  "emptyScanOn": {
+    "message": "まだ一致なし — スクロールを続けてください"
+  },
+  "emptyScanOff": {
+    "message": "スキャンはオフです（設定でオンに）"
+  },
+  "emptyLog": {
+    "message": "記録がありません"
+  },
+  "optEnabled": {
+    "message": "拡張機能を有効化"
+  },
+  "optInlineButton": {
+    "message": "投稿にブロックアイコンを表示"
+  },
+  "optScan": {
+    "message": "キーワードスキャンを有効化"
+  },
+  "optAuto": {
+    "message": "全自動（一致で即ブロック、確認なし）⚠️"
+  },
+  "optRemoveDom": {
+    "message": "ブロック後すぐに投稿をページから削除"
+  },
+  "secMatchScope": {
+    "message": "照合対象："
+  },
+  "optMatchText": {
+    "message": "本文"
+  },
+  "optMatchName": {
+    "message": "表示名"
+  },
+  "optMatchHandle": {
+    "message": "ユーザー名"
+  },
+  "optMatchBio": {
+    "message": "プロフィール（取得できる場合）"
+  },
+  "secThrottle": {
+    "message": "スロットリング："
+  },
+  "fieldDelay": {
+    "message": "間隔 ms"
+  },
+  "fieldJitter": {
+    "message": "ゆらぎ ms"
+  },
+  "fieldMaxPerRun": {
+    "message": "1 回の上限"
+  },
+  "noteThrottle": {
+    "message": "速すぎると X のレート制限やアカウント確認を招きます。間隔は 1.5 秒以上、上限は 50 以下を推奨。"
+  },
+  "labelKeywords": {
+    "message": "キーワード（1 行 1 件、大文字小文字を区別しない）"
+  },
+  "labelRegexes": {
+    "message": "正規表現（1 行 1 件、JS 構文、スラッシュなし）"
+  },
+  "labelWhitelist": {
+    "message": "許可リスト（1 行 1 件、@ なし）"
+  },
+  "phKeywords": {
+    "message": "crypto airdrop\nプレゼント\nDM ください"
+  },
+  "phRegexes": {
+    "message": "^(?=.*エアドロップ)(?=.*DM).*$"
+  },
+  "phWhitelist": {
+    "message": "yourfriend"
+  },
+  "reasonManual": {
+    "message": "手動"
+  },
+  "reasonBatch": {
+    "message": "一括"
+  },
+  "reasonHit": {
+    "message": "「$1」に一致"
+  },
+  "errNoCt0": {
+    "message": "未ログイン、または ct0 cookie が見つかりません"
+  },
+  "errRateLimited": {
+    "message": "API のレート制限（429）"
+  },
+  "errNoUserId": {
+    "message": "user_id を取得できません（$1）"
+  },
+  "errNoQueryId": {
+    "message": "UserByScreenName の queryId をまだ観測していません"
+  },
+  "errUbsnFailed": {
+    "message": "UserByScreenName に失敗：$1"
+  },
+  "errUbsnFeatures": {
+    "message": "UserByScreenName の features 交渉に失敗"
+  },
+  "errNoIdStr": {
+    "message": "レスポンスに id_str がありません"
+  },
+  "hintVisitProfile": {
+    "message": "｜ユーザーのプロフィールを一度開いてください。拡張機能がクエリパラメータを学習します（初回のみ）"
+  },
+  "popupNote": {
+    "message": "フィルター・許可リスト・スロットリングは x.com 右下の 🛡 パネルで設定します。"
+  },
+  "extName": {
+    "message": "X Quick Blocker"
+  },
+  "extDesc": {
+    "message": "X(Twitter) でワンクリックブロック、キーワードによる一括ブロックにも対応（既定で確認あり）。"
+  },
+  "btnFailedShort": {
+    "message": "失敗"
+  }
 }

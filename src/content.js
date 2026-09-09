@@ -117,14 +117,14 @@
   // features 参数缺哪个 X 会在报错里列出来，据此自动补全并重试。
   async function gqlUserId(handle) {
     const qid = qidMap.get('UserByScreenName');
-    if (!qid) throw new Error('尚未观察到 UserByScreenName 的 queryId');
+    if (!qid) throw new Error(t('errNoQueryId', null, `Have not observed the UserByScreenName queryId yet`));
     const variables = { screen_name: handle, withSafetyModeUserFields: true };
     for (let attempt = 0; attempt < 4; attempt++) {
       const u = `${apiBase()}/i/api/graphql/${qid}/UserByScreenName` +
         `?variables=${encodeURIComponent(JSON.stringify(variables))}` +
         `&features=${encodeURIComponent(JSON.stringify(gqlFeatures))}`;
       const res = await fetch(u, { headers: apiHeaders(), credentials: 'include' });
-      if (res.status === 429) throw new RateLimited('UserByScreenName 触发限流');
+      if (res.status === 429) throw new RateLimited('UserByScreenName rate limited');
       const txt = await res.text();
       let j = null;
       try { j = JSON.parse(txt); } catch (e) {}
@@ -142,9 +142,9 @@
       const id = u1 && ((u1.result && u1.result.rest_id) || u1.rest_id);
       if (id) return String(id);
       const emsg = (j && j.errors && j.errors[0] && j.errors[0].message) || `HTTP ${res.status}`;
-      throw new Error(`UserByScreenName 失败：${emsg}`);
+      throw new Error(t('errUbsnFailed', [emsg], `UserByScreenName failed: ${emsg}`));
     }
-    throw new Error('UserByScreenName features 协商失败');
+    throw new Error(t('errUbsnFeatures', null, `UserByScreenName feature negotiation failed`));
   }
 
   async function resolveUserId(handle) {
@@ -165,23 +165,23 @@
     try {
       const url = `${apiBase()}/i/api/1.1/users/show.json?screen_name=${encodeURIComponent(handle)}`;
       const res = await fetch(url, { headers: apiHeaders(), credentials: 'include' });
-      if (res.status === 429) throw new RateLimited('users/show 触发限流');
+      if (res.status === 429) throw new RateLimited('users/show rate limited');
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const j = await res.json();
-      if (!j || !j.id_str) throw new Error('响应无 id_str');
+      if (!j || !j.id_str) throw new Error(t('errNoIdStr', null, `Response had no id_str`));
       idMap.set(k, j.id_str); saveIdMap();
       return j.id_str;
     } catch (e) {
       if (e instanceof RateLimited) throw e;
       tried.push(`users/show: ${e.message}`);
     }
-    const err = new Error(`拿不到 user_id（${tried.join(' / ')}）`);
+    const err = new Error(t('errNoUserId', [tried.join(' / ')], `Could not resolve user_id (${tried.join(' / ')})`));
     err.noUserId = true;
     throw err;
   }
 
   async function callBlock(path, handle) {
-    if (!cookie('ct0')) throw new Error('未登录或找不到 ct0 cookie');
+    if (!cookie('ct0')) throw new Error(t('errNoCt0', null, `Not signed in, or the ct0 cookie is missing`));
     let body;
     try {
       body = `user_id=${encodeURIComponent(await resolveUserId(handle))}`;
@@ -197,7 +197,7 @@
       credentials: 'include',
       body,
     });
-    if (res.status === 429) throw new RateLimited('触发接口限流（429）');
+    if (res.status === 429) throw new RateLimited(t('errRateLimited', null, `Rate limited by the API (429)`));
     const txt = await res.text();
     if (!res.ok) {
       let msg = `HTTP ${res.status}`;
@@ -209,7 +209,7 @@
         const snip = String(txt || '').replace(/\s+/g, ' ').slice(0, 120);
         if (snip) msg += ` — ${snip}`;
       }
-      console.warn('[xqb] blocks 接口失败', res.status, body, String(txt || '').slice(0, 300));
+      console.warn('[xqb] blocks endpoint failed', res.status, body, String(txt || '').slice(0, 300));
       throw new Error(msg);
     }
     return true;
@@ -221,7 +221,7 @@
   function friendly(err) {
     const m = String((err && err.message) || err);
     if (/user_id|UserByScreenName|queryId|404/.test(m)) {
-      return m + '｜先随便点开一个用户主页一次，插件就能学到查询参数（只需一次，之后会记住）';
+      return m + t('hintVisitProfile', null, ` | Open any user profile once — the extension learns X's query parameters from that visit (once only, then it remembers)`);
     }
     return m;
   }
@@ -340,20 +340,42 @@
   }
   window.addEventListener('scroll', hideTip, true);
 
+  // 斜杠人形：斜杠用 mask 在人形上切出缺口，而不是直接盖上去（直接盖会糊成一团）。
+  // mask 定义只注入一次，所有按钮共用同一个 id——每个按钮各自定义会产生重复 id。
+  const MASK_ID = 'xqb-slash-mask';
+  function ensureDefs() {
+    if (document.getElementById(MASK_ID)) return;
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('class', 'xqb-defs');
+    svg.setAttribute('aria-hidden', 'true');
+    svg.innerHTML =
+      `<defs><mask id="${MASK_ID}" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24">` +
+      '<rect x="0" y="0" width="24" height="24" fill="#fff"/>' +
+      '<path d="M3.4 20.6 20.6 3.4" stroke="#000" stroke-width="3.2" stroke-linecap="round"/>' +
+      '</mask></defs>';
+    (document.body || document.documentElement).appendChild(svg);
+  }
+
+  const SVG = (inner) =>
+    `<svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" focusable="false">${inner}</svg>`;
+
   const ICONS = {
-    // 通用禁止符（圆圈 + 斜杠）——不依赖任何语言
-    block: '<svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" focusable="false">' +
-      '<path fill="currentColor" d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zM4 12a8 8 0 0 1 12.906-6.32L5.68 16.906A7.963 7.963 0 0 1 4 12zm8 8a7.963 7.963 0 0 1-4.906-1.68L18.32 7.094A8 8 0 0 1 12 20z"/></svg>',
-    done: '<svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" focusable="false">' +
-      '<path fill="currentColor" d="M9.55 17.6 4.4 12.45l1.414-1.414L9.55 14.77l8.636-8.636L19.6 7.55z"/></svg>',
-    fail: '<svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" focusable="false">' +
-      '<path fill="currentColor" d="M12 2 1 21h22L12 2zm1 14h-2v2h2v-2zm0-7h-2v5h2V9z"/></svg>',
-    busy: '<svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" focusable="false" class="xqb-spin">' +
-      '<path fill="currentColor" d="M12 2a10 10 0 1 0 10 10h-2.5A7.5 7.5 0 1 1 12 4.5V2z"/></svg>',
+    // 屏蔽：人形 + 斜杠，不含外圈圆
+    block: SVG(
+      `<g fill="currentColor" mask="url(#${MASK_ID})">` +
+      '<circle cx="12" cy="7" r="4.3"/>' +
+      '<path d="M12 12.6c-4.8 0-8.6 2.5-8.6 5.5V21h17.2v-2.9c0-3-3.8-5.5-8.6-5.5z"/>' +
+      '</g>' +
+      '<path d="M3.4 20.6 20.6 3.4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" fill="none"/>'
+    ),
+    done: SVG('<path fill="currentColor" d="M9.55 17.6 4.4 12.45l1.414-1.414L9.55 14.77l8.636-8.636L19.6 7.55z"/>'),
+    fail: SVG('<path fill="currentColor" d="M12 2 1 21h22L12 2zm1 14h-2v2h2v-2zm0-7h-2v5h2V9z"/>'),
+    busy: SVG('<path fill="currentColor" class="xqb-spin" d="M12 2a10 10 0 1 0 10 10h-2.5A7.5 7.5 0 1 1 12 4.5V2z"/>'),
   };
 
   /* ---------------- inline block button ---------------- */
   function makeBtn(info) {
+    ensureDefs();
     const b = document.createElement('button');
     b.className = 'xqb-btn';
     b.type = 'button';
@@ -389,20 +411,20 @@
         setState('done', t('btnBlocked', null, 'Blocked'));
         hideTip();
         blockedThisSession.add(info.handle.toLowerCase());
-        pushLog({ handle: info.handle, name: info.name, reason: '手动', ok: true, url: info.url });
+        pushLog({ handle: info.handle, name: info.name, reason: 'manual', ok: true, url: info.url });
         candidates.delete(info.handle.toLowerCase());
         renderCandidates();
         updateBadge();
         if (cfg.removeBlockedDom) {
           const n = removeByHandle(info.handle);
-          toast(`已屏蔽 @${info.handle}${n > 1 ? `，移除 ${n} 条` : ''}`);
+          toast(n > 1 ? t('toastBlockedRemoved', [info.handle, n], `Blocked @${info.handle} — removed ${n} posts`) : t('toastBlocked', [info.handle], `Blocked @${info.handle}`));
         } else {
-          toast(`已屏蔽 @${info.handle}`);
+          toast(t('toastBlocked', [info.handle], `Blocked @${info.handle}`));
         }
       } catch (err) {
         setState('fail', `${t('btnFailed', null, 'Failed — click to retry')}：${friendly(err)}`);
-        pushLog({ handle: info.handle, name: info.name, reason: '手动', ok: false, err: friendly(err) });
-        toast(`屏蔽 @${info.handle} 失败：${friendly(err)}`, true);
+        pushLog({ handle: info.handle, name: info.name, reason: 'manual', ok: false, err: friendly(err) });
+        toast(t('toastBlockFailed', [info.handle, friendly(err)], `Failed to block @${info.handle}: ${friendly(err)}`), true);
       } finally {
         delete b.dataset.busy;
       }
@@ -495,7 +517,7 @@
       for (let i = 0; i < list.length; i++) {
         const c = list[i];
         if (stopFlag) break;
-        if (done + fail >= cfg.maxPerRun) { toast(`已达单次上限 ${cfg.maxPerRun}，停止`); break; }
+        if (done + fail >= cfg.maxPerRun) { toast(t('toastMaxPerRun', [cfg.maxPerRun], `Reached the per-run cap of ${cfg.maxPerRun} — stopping`)); break; }
 
         let rlRetry = 0;
         for (;;) {
@@ -507,7 +529,7 @@
             blockedThisSession.add(c.handle.toLowerCase());
             candidates.delete(c.handle.toLowerCase());
             if (cfg.removeBlockedDom) removeByHandle(c.handle);
-            pushLog({ handle: c.handle, name: c.name, reason: c.hit ? `命中「${c.hit}」` : '批量', ok: true, url: c.url });
+            pushLog({ handle: c.handle, name: c.name, reason: c.hit ? { k: 'hit', v: c.hit } : 'batch', ok: true, url: c.url });
             break;
           } catch (err) {
             // 限流：重试「当前这个」，最多 3 次。原实现是 continue 到下一个，
@@ -515,15 +537,15 @@
             if (err instanceof RateLimited && rlRetry < 3) {
               rlRetry++;
               backoff = backoff ? Math.min(backoff * 2, 15 * 60_000) : 60_000;
-              toast(`触发限流，暂停 ${Math.round(backoff / 1000)}s 后重试 @${c.handle}`, true);
-              setStatus(`限流退避中… ${Math.round(backoff / 1000)}s（第 ${rlRetry} 次重试 @${c.handle}）`);
+              toast(t('toastRateLimited', [Math.round(backoff / 1000), c.handle], `Rate limited — retrying @${c.handle} in ${Math.round(backoff / 1000)}s`), true);
+              setStatus(t('statusBackoff', [Math.round(backoff / 1000), rlRetry, c.handle], `Rate limited — waiting ${Math.round(backoff / 1000)}s (retry ${rlRetry} for @${c.handle})`));
               await sleep(backoff);
               continue;
             }
             fail++;
             lastErr = friendly(err);
-            console.warn('[xqb] 屏蔽失败', c.handle, err);
-            pushLog({ handle: c.handle, name: c.name, reason: '批量', ok: false, err: lastErr });
+            console.warn('[xqb] block failed', c.handle, err);
+            pushLog({ handle: c.handle, name: c.name, reason: 'batch', ok: false, err: lastErr });
             break;
           }
         }
@@ -532,10 +554,10 @@
         try {
           renderCandidates();
           updateBadge();
-          setStatus(`进行中：成功 ${done} / 失败 ${fail} / 剩 ${Math.max(0, list.length - done - fail)}` +
-            (lastErr ? `｜最近失败：${lastErr}` : ''));
+          setStatus(t('statusRunning', [done, fail, Math.max(0, list.length - done - fail)], `Running: ${done} done / ${fail} failed / ${Math.max(0, list.length - done - fail)} left`) +
+            (lastErr ? t('statusLastFail', [lastErr], ` | last error: ${lastErr}`) : ''));
         } catch (e) {
-          console.warn('[xqb] 面板刷新出错（不影响批量）', e);
+          console.warn('[xqb] panel refresh error (batch continues)', e);
         }
 
         if (i < list.length - 1 && !stopFlag) {
@@ -545,9 +567,9 @@
     } finally {
       running = false;
       setRunUI(false);
-      const tail = fail && lastErr ? `｜最近失败：${lastErr}` : '';
-      setStatus(`完成：成功 ${done}，失败 ${fail}${tail}`);
-      toast(`批量结束：成功 ${done}，失败 ${fail}`);
+      const tail = fail && lastErr ? t('statusLastFail', [lastErr], ` | last error: ${lastErr}`) : '';
+      setStatus(t('statusDone', [done, fail], `Done: ${done} blocked, ${fail} failed`) + tail);
+      toast(t('toastBatchEnd', [done, fail], `Batch finished: ${done} blocked, ${fail} failed`));
     }
   }
 
@@ -601,7 +623,7 @@
     if (!elCand) return;
     elCand.textContent = '';
     if (!candidates.size) {
-      elCand.append(h('div', { class: 'xqb-empty' }, cfg.scanEnabled ? '暂无命中，继续往下刷即可' : '扫描未开启（设置里打开）'));
+      elCand.append(h('div', { class: 'xqb-empty' }, cfg.scanEnabled ? t('emptyScanOn', null, `No matches yet — keep scrolling`) : t('emptyScanOff', null, `Scanning is off (turn it on in Settings)`)));
       return;
     }
     for (const c of candidates.values()) {
@@ -618,16 +640,26 @@
             ),
             h('div', { class: 'xqb-snippet' }, c.snippet || '')
           ),
-          h('button', { class: 'xqb-mini', onclick: () => { candidates.delete(c.handle.toLowerCase()); renderCandidates(); updateBadge(); } }, '忽略')
+          h('button', { class: 'xqb-mini', onclick: () => { candidates.delete(c.handle.toLowerCase()); renderCandidates(); updateBadge(); } }, t('btnIgnore', null, `Ignore`))
         )
       );
     }
   }
 
+  // 日志里的 reason 存的是稳定标识（'manual' / 'batch' / {k:'hit',v:词}），
+  // 渲染时才本地化。历史日志里存的是中文字符串，原样显示，不做迁移。
+  function reasonText(r) {
+    if (!r) return '';
+    if (typeof r === 'object' && r.k === 'hit') return t('reasonHit', [r.v], `Matched “${r.v}”`);
+    if (r === 'manual') return t('reasonManual', null, `Manual`);
+    if (r === 'batch') return t('reasonBatch', null, `Batch`);
+    return String(r);
+  }
+
   function renderLog() {
     if (!elLog) return;
     elLog.textContent = '';
-    if (!log.length) { elLog.append(h('div', { class: 'xqb-empty' }, '暂无记录')); return; }
+    if (!log.length) { elLog.append(h('div', { class: 'xqb-empty' }, t('emptyLog', null, `No entries`))); return; }
     for (const l of log.slice(0, 100)) {
       elLog.append(
         h('div', { class: 'xqb-row' },
@@ -635,7 +667,7 @@
             h('div', { class: 'xqb-row-top' },
               h('span', { class: l.ok ? 'xqb-ok' : 'xqb-bad' }, l.ok ? '✓' : '✗'),
               h('a', { class: 'xqb-handle', href: `/${l.handle}`, target: '_blank' }, `@${l.handle}`),
-              h('span', { class: 'xqb-hit-tag' }, l.reason || '')
+              h('span', { class: 'xqb-hit-tag' }, reasonText(l.reason))
             ),
             h('div', { class: 'xqb-snippet' }, (l.err || '') + '  ' + new Date(l.t).toLocaleString())
           ),
@@ -643,10 +675,10 @@
             class: 'xqb-mini',
             onclick: async (e) => {
               e.target.textContent = '···';
-              try { await unblockUser(l.handle); e.target.textContent = '已解除'; }
-              catch (err) { e.target.textContent = '失败'; toast(String(err.message || err), true); }
+              try { await unblockUser(l.handle); e.target.textContent = t('btnUnblocked', null, `Unblocked`); }
+              catch (err) { e.target.textContent = t('btnFailedShort', null, `Failed`); toast(String(err.message || err), true); }
             },
-          }, '解除') : null
+          }, t('btnUnblock', null, `Unblock`)) : null
         )
       );
     }
@@ -658,7 +690,7 @@
     ta.addEventListener('change', () => {
       cfg[key] = ta.value.split('\n').map((s) => s.trim()).filter(Boolean);
       saveCfg();
-      toast(`${labelText} 已保存（${cfg[key].length} 条）`);
+      toast(t('toastListSaved', [labelText, cfg[key].length], `${labelText} saved (${cfg[key].length} entries)`));
       document.querySelectorAll('article[data-testid="tweet"]').forEach((a) => { a.dataset.xqb = ''; a.classList.remove('xqb-hit'); });
       scanAll();
     });
@@ -701,18 +733,18 @@
 
     elCand = h('div', { class: 'xqb-list' });
     elLog = h('div', { class: 'xqb-list' });
-    elStatus = h('div', { class: 'xqb-status' }, '就绪');
+    elStatus = h('div', { class: 'xqb-status' }, t('statusReady', null, `Ready`));
 
     elRunBtn = h('button', {
       class: 'xqb-primary',
       onclick: () => {
         const list = Array.from(candidates.values()).filter((c) => c.checked !== false);
-        if (!list.length) return toast('没有勾选的候选');
-        if (!confirm(`将屏蔽 ${list.length} 个账号，每个间隔约 ${(cfg.minDelayMs / 1000).toFixed(1)}s。确认？`)) return;
+        if (!list.length) return toast(t('toastNoChecked', null, `Nothing selected`));
+        if (!confirm(t('confirmBatch', [list.length, (cfg.minDelayMs / 1000).toFixed(1)], `Block ${list.length} accounts, about ${(cfg.minDelayMs / 1000).toFixed(1)}s apart. Continue?`))) return;
         runBatch(list);
       },
-    }, '屏蔽已勾选');
-    elStopBtn = h('button', { class: 'xqb-ghost', onclick: () => { stopFlag = true; toast('已请求停止'); } }, '停止');
+    }, t('btnBlockChecked', null, `Block selected`));
+    elStopBtn = h('button', { class: 'xqb-ghost', onclick: () => { stopFlag = true; toast(t('toastStopRequested', null, `Stop requested`)); } }, t('btnStop', null, `Stop`));
     elStopBtn.style.display = 'none';
 
     const tabs = {};
@@ -731,41 +763,43 @@
 
     const candBody = h('div', { class: 'xqb-body' },
       h('div', { class: 'xqb-actions' },
-        h('button', { class: 'xqb-ghost', onclick: () => { candidates.forEach((c) => (c.checked = true)); renderCandidates(); } }, '全选'),
-        h('button', { class: 'xqb-ghost', onclick: () => { candidates.clear(); renderCandidates(); updateBadge(); } }, '清空'),
+        h('button', { class: 'xqb-ghost', onclick: () => { candidates.forEach((c) => (c.checked = true)); renderCandidates(); } }, t('btnSelectAll', null, `Select all`)),
+        h('button', { class: 'xqb-ghost', onclick: () => { candidates.clear(); renderCandidates(); updateBadge(); } }, t('btnClearList', null, `Clear`)),
         elRunBtn, elStopBtn
       ),
       elCand
     );
 
     const kwBody = h('div', { class: 'xqb-body' },
-      listInput('关键词（一行一个，不区分大小写）', 'keywords', 'crypto airdrop\n代开\n加V'),
-      listInput('正则（一行一个，JS 语法，不含斜杠）', 'regexes', '^(?=.*空投)(?=.*私信).*$'),
-      listInput('白名单 handle（一行一个，不带 @）', 'whitelist', 'yourfriend')
+      listInput(t('labelKeywords', null, `Keywords (one per line, case-insensitive)`), 'keywords', t('phKeywords', null, `crypto airdrop
+giveaway
+DM me`)),
+      listInput(t('labelRegexes', null, `Regex (one per line, JS syntax, no slashes)`), 'regexes', t('phRegexes', null, `^(?=.*airdrop)(?=.*DM).*$`)),
+      listInput(t('labelWhitelist', null, `Allowlist handles (one per line, no @)`), 'whitelist', t('phWhitelist', null, `yourfriend`))
     );
 
     const setBody = h('div', { class: 'xqb-body' },
-      toggle('启用插件', 'enabled', () => scanAll()),
-      toggle('推文旁显示「屏蔽」按钮', 'showInlineButton', () => location.reload()),
-      toggle('开启关键词扫描', 'scanEnabled', () => { candidates.clear(); renderCandidates(); scanAll(); }),
-      toggle('全自动（命中即屏蔽，不弹确认）⚠️', 'autoBlock'),
-      toggle('屏蔽后立即从页面移除其推文/评论', 'removeBlockedDom'),
-      h('div', { class: 'xqb-sub' }, '匹配范围：'),
-      toggle('正文', 'matchText'), toggle('昵称', 'matchName'),
-      toggle('用户名', 'matchHandle'), toggle('简介（能抓到时）', 'matchBio'),
-      h('div', { class: 'xqb-sub' }, '节流：'),
-      numField('间隔 ms', 'minDelayMs', 300, 60000),
-      numField('抖动 ms', 'jitterMs', 0, 10000),
-      numField('单次上限', 'maxPerRun', 1, 500),
-      h('div', { class: 'xqb-note' }, '批量操作过快可能触发 X 的限流甚至风控，建议间隔 ≥1.5s、单次 ≤50。')
+      toggle(t('optEnabled', null, `Enable extension`), 'enabled', () => scanAll()),
+      toggle(t('optInlineButton', null, `Show block icon on posts`), 'showInlineButton', () => location.reload()),
+      toggle(t('optScan', null, `Enable keyword scanning`), 'scanEnabled', () => { candidates.clear(); renderCandidates(); scanAll(); }),
+      toggle(t('optAuto', null, `Fully automatic (block on match, no confirmation) ⚠️`), 'autoBlock'),
+      toggle(t('optRemoveDom', null, `Remove their posts from the page after blocking`), 'removeBlockedDom'),
+      h('div', { class: 'xqb-sub' }, t('secMatchScope', null, `Match against:`)),
+      toggle(t('optMatchText', null, `Post text`), 'matchText'), toggle(t('optMatchName', null, `Display name`), 'matchName'),
+      toggle(t('optMatchHandle', null, `Handle`), 'matchHandle'), toggle(t('optMatchBio', null, `Bio (when available)`), 'matchBio'),
+      h('div', { class: 'xqb-sub' }, t('secThrottle', null, `Throttling:`)),
+      numField(t('fieldDelay', null, `Delay ms`), 'minDelayMs', 300, 60000),
+      numField(t('fieldJitter', null, `Jitter ms`), 'jitterMs', 0, 10000),
+      numField(t('fieldMaxPerRun', null, `Max per run`), 'maxPerRun', 1, 500),
+      h('div', { class: 'xqb-note' }, t('noteThrottle', null, `Going too fast can trigger X's rate limits or account checks. Keep the delay at 1.5s or more and the cap at 50 or fewer.`))
     );
 
     const logBody = h('div', { class: 'xqb-body' }, elLog);
 
-    addTab('cand', '候选', candBody);
-    addTab('kw', '词库', kwBody);
-    addTab('log', '日志', logBody);
-    addTab('set', '设置', setBody);
+    addTab('cand', t('tabCandidates', null, `Candidates`), candBody);
+    addTab('kw', t('tabKeywords', null, `Filters`), kwBody);
+    addTab('log', t('tabLog', null, `Log`), logBody);
+    addTab('set', t('tabSettings', null, `Settings`), setBody);
 
     panel = h('div', { class: 'xqb-panel' },
       h('div', { class: 'xqb-head' },

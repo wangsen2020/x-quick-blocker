@@ -42,9 +42,11 @@
 .xqb-btn-wrap .xqb-btn.xqb-done, button.xqb-btn.xqb-done { color: rgb(0,186,124) !important; cursor: default !important; }
 .xqb-btn-wrap .xqb-btn.xqb-fail, button.xqb-btn.xqb-fail { color: rgb(255,212,0) !important; }
 
+.xqb-defs { position:absolute !important; width:0 !important; height:0 !important; overflow:hidden !important; }
 .xqb-spin { animation: xqb-spin .8s linear infinite; transform-origin: 50% 50%; }
 @keyframes xqb-spin { to { transform: rotate(360deg); } }
-@media (prefers-reduced-motion: reduce) { .xqb-spin { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .xqb-defs { position:absolute !important; width:0 !important; height:0 !important; overflow:hidden !important; }
+.xqb-spin { animation: none; } }
 
 /* tooltip：挂在 body 上 fixed 定位，避免被 X 的 overflow:hidden 祖先裁掉 */
 .xqb-tip {

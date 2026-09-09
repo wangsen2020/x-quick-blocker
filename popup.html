@@ -7,9 +7,9 @@
  a{color:#1d9bf0}
 </style>
 <h1>X Quick Blocker</h1>
-<label><input type="checkbox" id="enabled"> 启用插件</label>
-<label><input type="checkbox" id="showInlineButton"> 推文旁「屏蔽」按钮</label>
-<label><input type="checkbox" id="scanEnabled"> 关键词扫描</label>
-<label><input type="checkbox" id="autoBlock"> 全自动屏蔽 ⚠️</label>
-<p>词库、白名单、节流参数在 x.com 页面右下角 🛡 面板里设置。</p>
+<label><input type="checkbox" id="enabled"> <span data-i18n="optEnabled">Enable extension</span></label>
+<label><input type="checkbox" id="showInlineButton"> <span data-i18n="optInlineButton">Show block icon on posts</span></label>
+<label><input type="checkbox" id="scanEnabled"> <span data-i18n="optScan">Enable keyword scanning</span></label>
+<label><input type="checkbox" id="autoBlock"> <span data-i18n="optAuto">Fully automatic (block on match, no confirmation) ⚠️</span></label>
+<p data-i18n="popupNote">Filters, allowlist and throttling live in the 🛡 panel at the bottom right of x.com.</p>
 <script src="popup.js"></script>

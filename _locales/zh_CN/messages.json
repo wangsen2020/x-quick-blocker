@@ -1,6 +1,209 @@
 {
-  "btnBlockTip":   { "message": "屏蔽 @$HANDLE$", "placeholders": { "handle": { "content": "$1" } } },
-  "btnWorking":    { "message": "屏蔽中…" },
-  "btnBlocked":    { "message": "已屏蔽" },
-  "btnFailed":     { "message": "失败，点击重试" }
+  "btnBlockTip": {
+    "message": "屏蔽 @$1"
+  },
+  "btnWorking": {
+    "message": "屏蔽中…"
+  },
+  "btnBlocked": {
+    "message": "已屏蔽"
+  },
+  "btnFailed": {
+    "message": "失败，点击重试"
+  },
+  "tabCandidates": {
+    "message": "候选"
+  },
+  "tabKeywords": {
+    "message": "词库"
+  },
+  "tabLog": {
+    "message": "日志"
+  },
+  "tabSettings": {
+    "message": "设置"
+  },
+  "btnSelectAll": {
+    "message": "全选"
+  },
+  "btnClearList": {
+    "message": "清空"
+  },
+  "btnBlockChecked": {
+    "message": "屏蔽已勾选"
+  },
+  "btnStop": {
+    "message": "停止"
+  },
+  "btnIgnore": {
+    "message": "忽略"
+  },
+  "btnUnblock": {
+    "message": "解除"
+  },
+  "btnUnblocked": {
+    "message": "已解除"
+  },
+  "statusReady": {
+    "message": "就绪"
+  },
+  "statusRunning": {
+    "message": "进行中：成功 $1 / 失败 $2 / 剩 $3"
+  },
+  "statusDone": {
+    "message": "完成：成功 $1，失败 $2"
+  },
+  "statusLastFail": {
+    "message": "｜最近失败：$1"
+  },
+  "statusBackoff": {
+    "message": "限流退避中… $1s（第 $2 次重试 @$3）"
+  },
+  "toastBatchEnd": {
+    "message": "批量结束：成功 $1，失败 $2"
+  },
+  "toastRateLimited": {
+    "message": "触发限流，暂停 $1s 后重试 @$2"
+  },
+  "toastMaxPerRun": {
+    "message": "已达单次上限 $1，停止"
+  },
+  "toastNoChecked": {
+    "message": "没有勾选的候选"
+  },
+  "toastStopRequested": {
+    "message": "已请求停止"
+  },
+  "toastBlocked": {
+    "message": "已屏蔽 @$1"
+  },
+  "toastBlockedRemoved": {
+    "message": "已屏蔽 @$1，移除 $2 条"
+  },
+  "toastBlockFailed": {
+    "message": "屏蔽 @$1 失败：$2"
+  },
+  "toastListSaved": {
+    "message": "$1 已保存（$2 条）"
+  },
+  "confirmBatch": {
+    "message": "将屏蔽 $1 个账号，每个间隔约 $2s。确认？"
+  },
+  "emptyScanOn": {
+    "message": "暂无命中，继续往下刷即可"
+  },
+  "emptyScanOff": {
+    "message": "扫描未开启（设置里打开）"
+  },
+  "emptyLog": {
+    "message": "暂无记录"
+  },
+  "optEnabled": {
+    "message": "启用插件"
+  },
+  "optInlineButton": {
+    "message": "推文旁显示屏蔽图标"
+  },
+  "optScan": {
+    "message": "开启关键词扫描"
+  },
+  "optAuto": {
+    "message": "全自动（命中即屏蔽，不弹确认）⚠️"
+  },
+  "optRemoveDom": {
+    "message": "屏蔽后立即从页面移除其推文/评论"
+  },
+  "secMatchScope": {
+    "message": "匹配范围："
+  },
+  "optMatchText": {
+    "message": "正文"
+  },
+  "optMatchName": {
+    "message": "昵称"
+  },
+  "optMatchHandle": {
+    "message": "用户名"
+  },
+  "optMatchBio": {
+    "message": "简介（能抓到时）"
+  },
+  "secThrottle": {
+    "message": "节流："
+  },
+  "fieldDelay": {
+    "message": "间隔 ms"
+  },
+  "fieldJitter": {
+    "message": "抖动 ms"
+  },
+  "fieldMaxPerRun": {
+    "message": "单次上限"
+  },
+  "noteThrottle": {
+    "message": "批量操作过快可能触发 X 的限流甚至风控，建议间隔 ≥1.5s、单次 ≤50。"
+  },
+  "labelKeywords": {
+    "message": "关键词（一行一个，不区分大小写）"
+  },
+  "labelRegexes": {
+    "message": "正则（一行一个，JS 语法，不含斜杠）"
+  },
+  "labelWhitelist": {
+    "message": "白名单 handle（一行一个，不带 @）"
+  },
+  "phKeywords": {
+    "message": "crypto airdrop\n代开\n加V"
+  },
+  "phRegexes": {
+    "message": "^(?=.*空投)(?=.*私信).*$"
+  },
+  "phWhitelist": {
+    "message": "yourfriend"
+  },
+  "reasonManual": {
+    "message": "手动"
+  },
+  "reasonBatch": {
+    "message": "批量"
+  },
+  "reasonHit": {
+    "message": "命中「$1」"
+  },
+  "errNoCt0": {
+    "message": "未登录或找不到 ct0 cookie"
+  },
+  "errRateLimited": {
+    "message": "触发接口限流（429）"
+  },
+  "errNoUserId": {
+    "message": "拿不到 user_id（$1）"
+  },
+  "errNoQueryId": {
+    "message": "尚未观察到 UserByScreenName 的 queryId"
+  },
+  "errUbsnFailed": {
+    "message": "UserByScreenName 失败：$1"
+  },
+  "errUbsnFeatures": {
+    "message": "UserByScreenName features 协商失败"
+  },
+  "errNoIdStr": {
+    "message": "响应无 id_str"
+  },
+  "hintVisitProfile": {
+    "message": "｜先随便点开一个用户主页一次，插件就能学到查询参数（只需一次，之后会记住）"
+  },
+  "popupNote": {
+    "message": "词库、白名单、节流参数在 x.com 页面右下角 🛡 面板里设置。"
+  },
+  "extName": {
+    "message": "X Quick Blocker"
+  },
+  "extDesc": {
+    "message": "在 X(Twitter) 上一键屏蔽用户，或按关键词扫描并批量屏蔽（默认需人工确认）。"
+  },
+  "btnFailedShort": {
+    "message": "失败"
+  }
 }

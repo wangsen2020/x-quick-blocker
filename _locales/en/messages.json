@@ -1,6 +1,209 @@
 {
-  "btnBlockTip":   { "message": "Block @$HANDLE$", "placeholders": { "handle": { "content": "$1" } } },
-  "btnWorking":    { "message": "Blocking…" },
-  "btnBlocked":    { "message": "Blocked" },
-  "btnFailed":     { "message": "Failed — click to retry" }
+  "btnBlockTip": {
+    "message": "Block @$1"
+  },
+  "btnWorking": {
+    "message": "Blocking…"
+  },
+  "btnBlocked": {
+    "message": "Blocked"
+  },
+  "btnFailed": {
+    "message": "Failed — click to retry"
+  },
+  "tabCandidates": {
+    "message": "Candidates"
+  },
+  "tabKeywords": {
+    "message": "Filters"
+  },
+  "tabLog": {
+    "message": "Log"
+  },
+  "tabSettings": {
+    "message": "Settings"
+  },
+  "btnSelectAll": {
+    "message": "Select all"
+  },
+  "btnClearList": {
+    "message": "Clear"
+  },
+  "btnBlockChecked": {
+    "message": "Block selected"
+  },
+  "btnStop": {
+    "message": "Stop"
+  },
+  "btnIgnore": {
+    "message": "Ignore"
+  },
+  "btnUnblock": {
+    "message": "Unblock"
+  },
+  "btnUnblocked": {
+    "message": "Unblocked"
+  },
+  "statusReady": {
+    "message": "Ready"
+  },
+  "statusRunning": {
+    "message": "Running: $1 done / $2 failed / $3 left"
+  },
+  "statusDone": {
+    "message": "Done: $1 blocked, $2 failed"
+  },
+  "statusLastFail": {
+    "message": " | last error: $1"
+  },
+  "statusBackoff": {
+    "message": "Rate limited — waiting $1s (retry $2 for @$3)"
+  },
+  "toastBatchEnd": {
+    "message": "Batch finished: $1 blocked, $2 failed"
+  },
+  "toastRateLimited": {
+    "message": "Rate limited — retrying @$2 in $1s"
+  },
+  "toastMaxPerRun": {
+    "message": "Reached the per-run cap of $1 — stopping"
+  },
+  "toastNoChecked": {
+    "message": "Nothing selected"
+  },
+  "toastStopRequested": {
+    "message": "Stop requested"
+  },
+  "toastBlocked": {
+    "message": "Blocked @$1"
+  },
+  "toastBlockedRemoved": {
+    "message": "Blocked @$1 — removed $2 posts"
+  },
+  "toastBlockFailed": {
+    "message": "Failed to block @$1: $2"
+  },
+  "toastListSaved": {
+    "message": "$1 saved ($2 entries)"
+  },
+  "confirmBatch": {
+    "message": "Block $1 accounts, about $2s apart. Continue?"
+  },
+  "emptyScanOn": {
+    "message": "No matches yet — keep scrolling"
+  },
+  "emptyScanOff": {
+    "message": "Scanning is off (turn it on in Settings)"
+  },
+  "emptyLog": {
+    "message": "No entries"
+  },
+  "optEnabled": {
+    "message": "Enable extension"
+  },
+  "optInlineButton": {
+    "message": "Show block icon on posts"
+  },
+  "optScan": {
+    "message": "Enable keyword scanning"
+  },
+  "optAuto": {
+    "message": "Fully automatic (block on match, no confirmation) ⚠️"
+  },
+  "optRemoveDom": {
+    "message": "Remove their posts from the page after blocking"
+  },
+  "secMatchScope": {
+    "message": "Match against:"
+  },
+  "optMatchText": {
+    "message": "Post text"
+  },
+  "optMatchName": {
+    "message": "Display name"
+  },
+  "optMatchHandle": {
+    "message": "Handle"
+  },
+  "optMatchBio": {
+    "message": "Bio (when available)"
+  },
+  "secThrottle": {
+    "message": "Throttling:"
+  },
+  "fieldDelay": {
+    "message": "Delay ms"
+  },
+  "fieldJitter": {
+    "message": "Jitter ms"
+  },
+  "fieldMaxPerRun": {
+    "message": "Max per run"
+  },
+  "noteThrottle": {
+    "message": "Going too fast can trigger X's rate limits or account checks. Keep the delay at 1.5s or more and the cap at 50 or fewer."
+  },
+  "labelKeywords": {
+    "message": "Keywords (one per line, case-insensitive)"
+  },
+  "labelRegexes": {
+    "message": "Regex (one per line, JS syntax, no slashes)"
+  },
+  "labelWhitelist": {
+    "message": "Allowlist handles (one per line, no @)"
+  },
+  "phKeywords": {
+    "message": "crypto airdrop\ngiveaway\nDM me"
+  },
+  "phRegexes": {
+    "message": "^(?=.*airdrop)(?=.*DM).*$"
+  },
+  "phWhitelist": {
+    "message": "yourfriend"
+  },
+  "reasonManual": {
+    "message": "Manual"
+  },
+  "reasonBatch": {
+    "message": "Batch"
+  },
+  "reasonHit": {
+    "message": "Matched “$1”"
+  },
+  "errNoCt0": {
+    "message": "Not signed in, or the ct0 cookie is missing"
+  },
+  "errRateLimited": {
+    "message": "Rate limited by the API (429)"
+  },
+  "errNoUserId": {
+    "message": "Could not resolve user_id ($1)"
+  },
+  "errNoQueryId": {
+    "message": "Have not observed the UserByScreenName queryId yet"
+  },
+  "errUbsnFailed": {
+    "message": "UserByScreenName failed: $1"
+  },
+  "errUbsnFeatures": {
+    "message": "UserByScreenName feature negotiation failed"
+  },
+  "errNoIdStr": {
+    "message": "Response had no id_str"
+  },
+  "hintVisitProfile": {
+    "message": " | Open any user profile once — the extension learns X's query parameters from that visit (once only, then it remembers)"
+  },
+  "popupNote": {
+    "message": "Filters, allowlist and throttling live in the 🛡 panel at the bottom right of x.com."
+  },
+  "extName": {
+    "message": "X Quick Blocker"
+  },
+  "extDesc": {
+    "message": "One-click block on X (Twitter), plus keyword scanning and batch blocking (confirmation required by default)."
+  },
+  "btnFailedShort": {
+    "message": "Failed"
+  }
 }
