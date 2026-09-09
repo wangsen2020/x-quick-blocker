@@ -1,29 +1,37 @@
 .xqb-btn-wrap { display:flex; align-items:center; }
 /* 用 !important + 双类名提高优先级：X 自己的按钮样式规则会覆盖掉普通声明 */
+/* 不做圆形容器、不做背景：只有一个图标，靠 padding 参与操作栏的水平对齐 */
 .xqb-btn-wrap .xqb-btn, button.xqb-btn {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  width: 30px !important;
-  height: 30px !important;
-  padding: 0 !important;
-  margin-left: 2px !important;
+  width: auto !important;
+  height: auto !important;
+  padding: 4px !important;
+  margin: 0 !important;
   border: 0 !important;
-  border-radius: 999px !important;
-  background: transparent !important;
-  color: rgb(113, 118, 123) !important;   /* 静默态跟 X 其它操作图标同色 */
+  border-radius: 0 !important;
+  background: none !important;
+  box-shadow: none !important;
+  color: rgb(113, 118, 123) !important;   /* 静默态与 X 其它操作图标同色 */
   cursor: pointer !important;
   line-height: 0 !important;
   min-width: 0 !important;
-  transition: color .15s, background-color .15s !important;
+  min-height: 0 !important;
+  vertical-align: middle !important;
+  transition: color .15s !important;
+}
+.xqb-btn-wrap {
+  display: inline-flex !important;
+  align-items: center !important;
 }
 .xqb-btn-wrap .xqb-btn svg, button.xqb-btn svg { display: block !important; }
 
-/* 悬停才变红：默认就红会在时间线里过于抢眼 */
+/* 悬停只换颜色，不加底色 */
 .xqb-btn-wrap .xqb-btn:hover, button.xqb-btn:hover,
 .xqb-btn-wrap .xqb-btn:focus-visible, button.xqb-btn:focus-visible {
   color: rgb(244, 33, 46) !important;
-  background: rgba(244, 33, 46, .1) !important;
+  background: none !important;
 }
 .xqb-btn-wrap .xqb-btn:focus-visible, button.xqb-btn:focus-visible {
   outline: 2px solid rgba(244, 33, 46, .5) !important;
