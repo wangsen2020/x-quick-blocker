@@ -813,21 +813,58 @@
       top: Math.min(Math.max(4, r.top), maxY),
     };
   }
+  // 面板尺寸与 panel.css 里的 .xqb-panel 保持一致（固定宽高）
+  const PANEL_W = 380;
+  const PANEL_H = 560;
+  function panelSize() {
+    return { w: PANEL_W, h: Math.min(PANEL_H, window.innerHeight - 24) };
+  }
+  // 把面板夹进视窗内（整块可见，不会被顶出去）
+  function clampPanelXY(left, top) {
+    const { w, h } = panelSize();
+    return {
+      left: Math.max(8, Math.min(left, window.innerWidth - w - 8)),
+      top: Math.max(8, Math.min(top, window.innerHeight - h - 8)),
+    };
+  }
+  function setPanelXY(left, top) {
+    const p = clampPanelXY(left, top);
+    panel.style.left = `${Math.round(p.left)}px`;
+    panel.style.top = `${Math.round(p.top)}px`;
+    panel.style.right = 'auto';
+    panel.style.bottom = 'auto';
+  }
   // 面板跟随悬浮球：优先开在球的上方、右缘对齐；上方放不下就翻到下方
   function positionPanel() {
     if (!panel || !fabEl) return;
     const r = fabEl.getBoundingClientRect();
-    const pw = panel.offsetWidth || 380;
-    const ph = panel.offsetHeight || Math.min(window.innerHeight * 0.72, 480);
-    let left = r.right - pw;
-    let top = r.top - ph - 10;
-    if (top < 8) top = Math.min(r.bottom + 10, window.innerHeight - ph - 8);
-    left = Math.max(8, Math.min(left, window.innerWidth - pw - 8));
-    top = Math.max(8, Math.min(top, window.innerHeight - 40));
-    panel.style.left = `${Math.round(left)}px`;
-    panel.style.top = `${Math.round(top)}px`;
-    panel.style.right = 'auto';
-    panel.style.bottom = 'auto';
+    const { w, h } = panelSize();
+    let top = r.top - h - 10;
+    if (top < 8) top = r.bottom + 10;
+    setPanelXY(r.right - w, top);
+  }
+  // 面板可用标题栏拖动（万一位置不理想能拽回来）
+  function makePanelDraggable(handle) {
+    let dragging = false, sx = 0, sy = 0, ox = 0, oy = 0;
+    handle.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0 || (e.target && e.target.closest && e.target.closest('.xqb-x'))) return;
+      dragging = true;
+      const r = panel.getBoundingClientRect();
+      sx = e.clientX; sy = e.clientY; ox = r.left; oy = r.top;
+      try { handle.setPointerCapture(e.pointerId); } catch (_) {}
+      e.preventDefault();
+    });
+    handle.addEventListener('pointermove', (e) => {
+      if (!dragging) return;
+      setPanelXY(ox + (e.clientX - sx), oy + (e.clientY - sy));
+    });
+    const end = (e) => {
+      if (!dragging) return;
+      dragging = false;
+      try { handle.releasePointerCapture(e.pointerId); } catch (_) {}
+    };
+    handle.addEventListener('pointerup', end);
+    handle.addEventListener('pointercancel', end);
   }
   // 拖动位移超过阈值算「拖拽」，否则算「点击」（切换面板）
   function makeFabDraggable(el, onClick) {
@@ -942,13 +979,12 @@ DM me`)),
     addTab('log', t('tabLog', null, `Log`), logBody);
     addTab('set', t('tabSettings', null, `Settings`), setBody);
 
-    panel = h('div', { class: 'xqb-panel' },
-      h('div', { class: 'xqb-head' },
-        h('span', {}, 'X Quick Blocker'),
-        h('button', { class: 'xqb-x', onclick: () => panel.classList.remove('xqb-open') }, '×')
-      ),
-      tabBar, candBody, kwBody, logBody, setBody, elStatus
+    const head = h('div', { class: 'xqb-head' },
+      h('span', {}, 'X Quick Blocker'),
+      h('button', { class: 'xqb-x', onclick: () => panel.classList.remove('xqb-open') }, '×')
     );
+    const scroll = h('div', { class: 'xqb-scroll' }, candBody, kwBody, logBody, setBody);
+    panel = h('div', { class: 'xqb-panel' }, head, tabBar, scroll, elStatus);
     selectTab('cand');
 
     function togglePanel() {
@@ -956,6 +992,7 @@ DM me`)),
       if (open) positionPanel();
     }
     makeFabDraggable(fab, togglePanel);
+    makePanelDraggable(head);
     document.body.append(fab, panel);
 
     if (fabPos) { applyFabPos(fab, fabPos); fabPos = clampFabPos(fab); applyFabPos(fab, fabPos); }

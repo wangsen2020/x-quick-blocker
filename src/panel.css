@@ -83,19 +83,25 @@ article.xqb-hit { box-shadow: inset 3px 0 0 #f4212e; background: rgba(244,33,46,
   background:#f4212e; color:#fff; border-radius:999px; font:600 11px/18px system-ui; text-align:center;
 }
 .xqb-panel {
-  position:fixed; right:18px; bottom:150px; z-index:2147483000; width:380px; max-height:72vh;
+  /* 固定高度：内容超出时由 .xqb-scroll 内部纵向滚动。
+     不再用 max-height + 自适应高度——那样切 Tab 时高度跳变会闪，
+     高度也可能超过视窗把面板顶出去。 */
+  position:fixed; right:18px; bottom:150px; z-index:2147483000;
+  width:380px; height:560px; max-height:calc(100vh - 24px);
   display:none; flex-direction:column; overflow:hidden;
   background:#16181c; color:#e7e9ea; border:1px solid #2f3336; border-radius:14px;
   font:13px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif; box-shadow:0 10px 30px rgba(0,0,0,.5);
 }
 .xqb-panel.xqb-open { display:flex; }
-.xqb-head { display:flex; justify-content:space-between; align-items:center; padding:10px 12px; border-bottom:1px solid #2f3336; font-weight:600; }
+/* 头/标签/状态条不参与压缩，中间滚动区吃掉剩余高度 */
+.xqb-head, .xqb-tabs, .xqb-status { flex:0 0 auto; }
+.xqb-scroll { flex:1 1 auto; min-height:0; overflow-y:auto; overflow-x:hidden; overscroll-behavior:contain; }
+.xqb-head { display:flex; justify-content:space-between; align-items:center; padding:10px 12px; border-bottom:1px solid #2f3336; font-weight:600; cursor:move; user-select:none; -webkit-user-select:none; }
 .xqb-x { background:none; border:0; color:#71767b; font-size:18px; cursor:pointer; }
 .xqb-tabs { display:flex; border-bottom:1px solid #2f3336; }
 .xqb-tab { flex:1; background:none; border:0; color:#71767b; padding:9px 0; cursor:pointer; font:13px system-ui; text-align:center; }
 .xqb-tab-on { color:#e7e9ea; box-shadow: inset 0 -2px 0 #1d9bf0; }
-.xqb-body { padding:10px 12px; overflow:auto; }
-.xqb-list { max-height:44vh; overflow:auto; }
+.xqb-body { padding:10px 12px; }
 .xqb-row { display:flex; gap:8px; align-items:flex-start; padding:8px 0; border-bottom:1px solid #22252a; }
 .xqb-row-main { flex:1; min-width:0; }
 .xqb-row-top { display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
