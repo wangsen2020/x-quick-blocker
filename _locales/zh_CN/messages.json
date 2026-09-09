@@ -1,0 +1,6 @@
+{
+  "btnBlockTip":   { "message": "屏蔽 @$HANDLE$", "placeholders": { "handle": { "content": "$1" } } },
+  "btnWorking":    { "message": "屏蔽中…" },
+  "btnBlocked":    { "message": "已屏蔽" },
+  "btnFailed":     { "message": "失败，点击重试" }
+}

@@ -1,0 +1,6 @@
+{
+  "btnBlockTip":   { "message": "封鎖 @$HANDLE$", "placeholders": { "handle": { "content": "$1" } } },
+  "btnWorking":    { "message": "封鎖中…" },
+  "btnBlocked":    { "message": "已封鎖" },
+  "btnFailed":     { "message": "失敗，點擊重試" }
+}

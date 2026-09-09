@@ -300,23 +300,94 @@
     return null;
   }
 
+  /* ---------------- i18n ---------------- */
+  // chrome.i18n 按浏览器语言自动选 _locales 下的文案；取不到时回落到英文，
+  // 保证在没有 i18n 环境（比如直接注入测试）时也不会显示空字符串。
+  function t(key, subs, fallback) {
+    try {
+      const m = chrome.i18n && chrome.i18n.getMessage(key, subs);
+      if (m) return m;
+    } catch (e) {}
+    return fallback;
+  }
+
+  /* ---------------- tooltip ---------------- */
+  // 挂在 body 上用 fixed 定位，而不是按钮的伪元素：
+  // X 的操作栏祖先有 overflow:hidden，伪元素 tooltip 会被裁掉。
+  let tipEl = null;
+  function hideTip() {
+    if (tipEl) { tipEl.remove(); tipEl = null; }
+  }
+  function showTip(anchorEl, text) {
+    hideTip();
+    if (!text) return;
+    tipEl = document.createElement('div');
+    tipEl.className = 'xqb-tip';
+    tipEl.setAttribute('role', 'tooltip');
+    tipEl.textContent = text;
+    document.body.appendChild(tipEl);
+    const r = anchorEl.getBoundingClientRect();
+    const b = tipEl.getBoundingClientRect();
+    let left = r.left + r.width / 2 - b.width / 2;
+    left = Math.max(6, Math.min(left, window.innerWidth - b.width - 6));
+    let top = r.top - b.height - 8;
+    let below = false;
+    if (top < 6) { top = r.bottom + 8; below = true; }   // 上方放不下就翻到下方
+    tipEl.style.left = `${Math.round(left)}px`;
+    tipEl.style.top = `${Math.round(top)}px`;
+    tipEl.classList.toggle('xqb-tip-below', below);
+    requestAnimationFrame(() => tipEl && tipEl.classList.add('xqb-tip-in'));
+  }
+  window.addEventListener('scroll', hideTip, true);
+
+  const ICONS = {
+    // 通用禁止符（圆圈 + 斜杠）——不依赖任何语言
+    block: '<svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" focusable="false">' +
+      '<path fill="currentColor" d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zM4 12a8 8 0 0 1 12.906-6.32L5.68 16.906A7.963 7.963 0 0 1 4 12zm8 8a7.963 7.963 0 0 1-4.906-1.68L18.32 7.094A8 8 0 0 1 12 20z"/></svg>',
+    done: '<svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" focusable="false">' +
+      '<path fill="currentColor" d="M9.55 17.6 4.4 12.45l1.414-1.414L9.55 14.77l8.636-8.636L19.6 7.55z"/></svg>',
+    fail: '<svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" focusable="false">' +
+      '<path fill="currentColor" d="M12 2 1 21h22L12 2zm1 14h-2v2h2v-2zm0-7h-2v5h2V9z"/></svg>',
+    busy: '<svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" focusable="false" class="xqb-spin">' +
+      '<path fill="currentColor" d="M12 2a10 10 0 1 0 10 10h-2.5A7.5 7.5 0 1 1 12 4.5V2z"/></svg>',
+  };
+
   /* ---------------- inline block button ---------------- */
   function makeBtn(info) {
     const b = document.createElement('button');
     b.className = 'xqb-btn';
     b.type = 'button';
-    b.title = `屏蔽 @${info.handle}`;
-    b.textContent = '屏蔽';
+
+    const tipBlock = t('btnBlockTip', [info.handle], `Block @${info.handle}`);
+    // 只用自定义 tooltip，不设 title —— 两者都在会弹两层提示
+    b.setAttribute('aria-label', tipBlock);
+    b.dataset.tip = tipBlock;
+    b.innerHTML = ICONS.block;
+
+    const setState = (state, tip) => {
+      b.classList.remove('xqb-done', 'xqb-fail', 'xqb-busy');
+      if (state) b.classList.add(`xqb-${state}`);
+      b.innerHTML = ICONS[state === 'done' ? 'done' : state === 'fail' ? 'fail' : state === 'busy' ? 'busy' : 'block'];
+      b.dataset.tip = tip;
+      b.setAttribute('aria-label', tip);
+      if (tipEl) showTip(b, tip);   // 悬停中改状态时同步刷新
+    };
+
+    b.addEventListener('mouseenter', () => showTip(b, b.dataset.tip));
+    b.addEventListener('mouseleave', hideTip);
+    b.addEventListener('focus', () => showTip(b, b.dataset.tip));
+    b.addEventListener('blur', hideTip);
+
     b.addEventListener('click', async (e) => {
       e.preventDefault();
       e.stopPropagation();
       if (b.dataset.busy) return;
       b.dataset.busy = '1';
-      b.textContent = '···';
+      setState('busy', t('btnWorking', null, 'Blocking…'));
       try {
         await blockUser(info.handle);
-        b.textContent = '已屏蔽';
-        b.classList.add('xqb-done');
+        setState('done', t('btnBlocked', null, 'Blocked'));
+        hideTip();
         blockedThisSession.add(info.handle.toLowerCase());
         pushLog({ handle: info.handle, name: info.name, reason: '手动', ok: true, url: info.url });
         candidates.delete(info.handle.toLowerCase());
@@ -329,8 +400,7 @@
           toast(`已屏蔽 @${info.handle}`);
         }
       } catch (err) {
-        b.textContent = '失败';
-        b.classList.add('xqb-fail');
+        setState('fail', `${t('btnFailed', null, 'Failed — click to retry')}：${friendly(err)}`);
         pushLog({ handle: info.handle, name: info.name, reason: '手动', ok: false, err: friendly(err) });
         toast(`屏蔽 @${info.handle} 失败：${friendly(err)}`, true);
       } finally {

@@ -1,0 +1,6 @@
+{
+  "btnBlockTip":   { "message": "@$HANDLE$ をブロック", "placeholders": { "handle": { "content": "$1" } } },
+  "btnWorking":    { "message": "ブロック中…" },
+  "btnBlocked":    { "message": "ブロック済み" },
+  "btnFailed":     { "message": "失敗しました。クリックで再試行" }
+}
