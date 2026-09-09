@@ -38,6 +38,7 @@
   let running = false;
   let stopFlag = false;
   let scanTimer = null;
+  let fabPos = null;             // 悬浮球位置 {left, top}（px）；null = 用 CSS 默认角落
 
   /* ---------------- storage ---------------- */
   const store = chrome.storage.local;
@@ -75,19 +76,49 @@
     } catch (e) { teardown(); cb({}); }
   }
 
+  // 页面本身（x.com）的 localStorage 镜像。chrome.storage.local 在「移除并重新
+  // 添加扩展」时会被清空，词库/设置随之丢失；写一份到 x.com 的 localStorage 里，
+  // 重装扩展也不受影响（内容脚本虽在隔离世界，localStorage 仍是页面同源那一份）。
+  // 主存仍是 chrome.storage，localStorage 只作镜像与冷启动回填。
+  const LS_PREFIX = 'xqb:';
+  function lsGet(key) {
+    try {
+      const v = window.localStorage.getItem(LS_PREFIX + key);
+      return v == null ? undefined : JSON.parse(v);
+    } catch (e) { return undefined; }
+  }
+  function lsSet(key, val) {
+    try { window.localStorage.setItem(LS_PREFIX + key, JSON.stringify(val)); } catch (e) {}
+  }
+
   function loadAll() {
     return new Promise((res) => {
-      storeGet(['xqb_config', 'xqb_log', 'xqb_idmap', 'xqb_qid', 'xqb_feat'], (r) => {
-        cfg = Object.assign({}, DEFAULTS, r.xqb_config || {});
+      storeGet(['xqb_config', 'xqb_log', 'xqb_idmap', 'xqb_qid', 'xqb_feat', 'xqb_fab_pos'], (r) => {
+        // 配置：chrome.storage 没有就回填 localStorage 里的镜像，并写回主存
+        let savedCfg = r.xqb_config;
+        if (!savedCfg) {
+          const mirror = lsGet('xqb_config');
+          if (mirror && typeof mirror === 'object') { savedCfg = mirror; storeSet({ xqb_config: mirror }); }
+        }
+        cfg = Object.assign({}, DEFAULTS, savedCfg || {});
+        lsSet('xqb_config', cfg);   // 每次启动刷新镜像
+
         log = r.xqb_log || [];
         if (r.xqb_idmap) idMap = new Map(Object.entries(r.xqb_idmap));
         if (r.xqb_qid) qidMap = new Map(Object.entries(r.xqb_qid));
         if (r.xqb_feat) gqlFeatures = r.xqb_feat;
+
+        let savedPos = r.xqb_fab_pos || lsGet('xqb_fab_pos');
+        if (savedPos && typeof savedPos.left === 'number') {
+          fabPos = savedPos;
+          storeSet({ xqb_fab_pos: savedPos });
+          lsSet('xqb_fab_pos', savedPos);
+        }
         res();
       });
     });
   }
-  const saveCfg = () => storeSet({ xqb_config: cfg });
+  const saveCfg = () => { storeSet({ xqb_config: cfg }); lsSet('xqb_config', cfg); };
   const saveQid = () => storeSet({ xqb_qid: Object.fromEntries(qidMap) });
   const saveFeat = () => storeSet({ xqb_feat: gqlFeatures });
   const saveLog = () => storeSet({ xqb_log: log.slice(0, cfg.logLimit) });
@@ -105,6 +136,7 @@
       if (!extAlive()) return;
       if (area === 'local' && ch.xqb_config) {
         cfg = Object.assign({}, DEFAULTS, ch.xqb_config.newValue || {});
+        lsSet('xqb_config', cfg);   // popup 改的也镜像一份
         syncPanelFromCfg();
       }
     });
@@ -620,7 +652,7 @@
   }
 
   /* ---------------- UI ---------------- */
-  let panel, elCand, elLog, elStatus, elBadge, elRunBtn, elStopBtn;
+  let panel, elCand, elLog, elStatus, elBadge, elRunBtn, elStopBtn, fabEl;
 
   function toast(msg, bad) {
     const t = document.createElement('div');
@@ -764,9 +796,81 @@
     });
   }
 
+  /* ---------------- 悬浮球：拖拽 + 位置持久化 ---------------- */
+  function applyFabPos(el, pos) {
+    el.style.left = `${Math.round(pos.left)}px`;
+    el.style.top = `${Math.round(pos.top)}px`;
+    el.style.right = 'auto';
+    el.style.bottom = 'auto';
+  }
+  // 把当前位置夹回可视区内（窗口缩放、分辨率变化后不至于飞出屏幕）
+  function clampFabPos(el) {
+    const r = el.getBoundingClientRect();
+    const maxX = Math.max(4, window.innerWidth - r.width - 4);
+    const maxY = Math.max(4, window.innerHeight - r.height - 4);
+    return {
+      left: Math.min(Math.max(4, r.left), maxX),
+      top: Math.min(Math.max(4, r.top), maxY),
+    };
+  }
+  // 面板跟随悬浮球：优先开在球的上方、右缘对齐；上方放不下就翻到下方
+  function positionPanel() {
+    if (!panel || !fabEl) return;
+    const r = fabEl.getBoundingClientRect();
+    const pw = panel.offsetWidth || 380;
+    const ph = panel.offsetHeight || Math.min(window.innerHeight * 0.72, 480);
+    let left = r.right - pw;
+    let top = r.top - ph - 10;
+    if (top < 8) top = Math.min(r.bottom + 10, window.innerHeight - ph - 8);
+    left = Math.max(8, Math.min(left, window.innerWidth - pw - 8));
+    top = Math.max(8, Math.min(top, window.innerHeight - 40));
+    panel.style.left = `${Math.round(left)}px`;
+    panel.style.top = `${Math.round(top)}px`;
+    panel.style.right = 'auto';
+    panel.style.bottom = 'auto';
+  }
+  // 拖动位移超过阈值算「拖拽」，否则算「点击」（切换面板）
+  function makeFabDraggable(el, onClick) {
+    let dragging = false, moved = false, sx = 0, sy = 0, ox = 0, oy = 0;
+    el.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0) return;
+      dragging = true; moved = false;
+      const r = el.getBoundingClientRect();
+      sx = e.clientX; sy = e.clientY; ox = r.left; oy = r.top;
+      try { el.setPointerCapture(e.pointerId); } catch (_) {}
+      el.style.transition = 'none';
+      e.preventDefault();
+    });
+    el.addEventListener('pointermove', (e) => {
+      if (!dragging) return;
+      const dx = e.clientX - sx, dy = e.clientY - sy;
+      if (!moved && Math.hypot(dx, dy) > 4) moved = true;
+      if (moved) applyFabPos(el, { left: ox + dx, top: oy + dy });
+    });
+    const end = (e, allowClick) => {
+      if (!dragging) return;
+      dragging = false;
+      try { el.releasePointerCapture(e.pointerId); } catch (_) {}
+      el.style.transition = '';
+      if (moved) {
+        fabPos = clampFabPos(el);
+        applyFabPos(el, fabPos);
+        storeSet({ xqb_fab_pos: fabPos });
+        lsSet('xqb_fab_pos', fabPos);
+        if (panel && panel.classList.contains('xqb-open')) positionPanel();
+      } else if (allowClick) {
+        onClick();
+      }
+    };
+    el.addEventListener('pointerup', (e) => end(e, true));
+    el.addEventListener('pointercancel', (e) => end(e, false));
+    el.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); });
+  }
+
   function buildPanel() {
     elBadge = h('span', { class: 'xqb-badge' });
-    const fab = h('div', { class: 'xqb-fab', title: 'X Quick Blocker' }, '🛡', elBadge);
+    const fab = h('div', { class: 'xqb-fab', title: 'X Quick Blocker（拖动可移动位置）' }, '🛡', elBadge);
+    fabEl = fab;
 
     elCand = h('div', { class: 'xqb-list' });
     elLog = h('div', { class: 'xqb-list' });
@@ -847,8 +951,19 @@ DM me`)),
     );
     selectTab('cand');
 
-    fab.addEventListener('click', () => panel.classList.toggle('xqb-open'));
+    function togglePanel() {
+      const open = panel.classList.toggle('xqb-open');
+      if (open) positionPanel();
+    }
+    makeFabDraggable(fab, togglePanel);
     document.body.append(fab, panel);
+
+    if (fabPos) { applyFabPos(fab, fabPos); fabPos = clampFabPos(fab); applyFabPos(fab, fabPos); }
+    window.addEventListener('resize', () => {
+      if (fabPos) { fabPos = clampFabPos(fab); applyFabPos(fab, fabPos); }
+      if (panel.classList.contains('xqb-open')) positionPanel();
+    });
+
     renderCandidates();
     renderLog();
     updateBadge();
