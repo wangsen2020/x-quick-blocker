@@ -409,8 +409,9 @@
   }
   window.addEventListener('scroll', hideTip, true);
 
-  // 斜杠人形：斜杠用 mask 在人形上切出缺口，而不是直接盖上去（直接盖会糊成一团）。
-  // mask 定义只注入一次，所有按钮共用同一个 id——每个按钮各自定义会产生重复 id。
+  // 禁止符（圆环 + 人像 + 斜杠），与扩展 logo 一致。整体单色 currentColor，
+  // 以便融入 X 操作栏并沿用 hover/busy/fail 的变色。斜杠用 mask 在人像上切出
+  // 缺口，否则同色会糊成一团。mask 定义只注入一次，所有按钮共用一个 id。
   const MASK_ID = 'xqb-slash-mask';
   function ensureDefs() {
     if (document.getElementById(MASK_ID)) return;
@@ -420,7 +421,7 @@
     svg.innerHTML =
       `<defs><mask id="${MASK_ID}" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24">` +
       '<rect x="0" y="0" width="24" height="24" fill="#fff"/>' +
-      '<path d="M3.4 20.6 20.6 3.4" stroke="#000" stroke-width="3.2" stroke-linecap="round"/>' +
+      '<path d="M5 19 19 5" stroke="#000" stroke-width="3.8" stroke-linecap="round"/>' +
       '</mask></defs>';
     (document.body || document.documentElement).appendChild(svg);
   }
@@ -429,13 +430,14 @@
     `<svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" focusable="false">${inner}</svg>`;
 
   const ICONS = {
-    // 屏蔽：人形 + 斜杠，不含外圈圆
+    // 屏蔽：圆环 + 人像 + 斜杠（禁止符），与扩展图标同款
     block: SVG(
       `<g fill="currentColor" mask="url(#${MASK_ID})">` +
-      '<circle cx="12" cy="7" r="4.3"/>' +
-      '<path d="M12 12.6c-4.8 0-8.6 2.5-8.6 5.5V21h17.2v-2.9c0-3-3.8-5.5-8.6-5.5z"/>' +
+      '<circle cx="12" cy="9.1" r="3"/>' +
+      '<path d="M12 12.6c-3.5 0-6 2.1-6 4.8 0 .25.05.5.12.7h11.76c.07-.2.12-.45.12-.7 0-2.7-2.5-4.8-6-4.8z"/>' +
       '</g>' +
-      '<path d="M3.4 20.6 20.6 3.4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" fill="none"/>'
+      '<circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2.2"/>' +
+      '<path d="M5 19 19 5" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" fill="none"/>'
     ),
     done: SVG('<path fill="currentColor" d="M9.55 17.6 4.4 12.45l1.414-1.414L9.55 14.77l8.636-8.636L19.6 7.55z"/>'),
     fail: SVG('<path fill="currentColor" d="M12 2 1 21h22L12 2zm1 14h-2v2h2v-2zm0-7h-2v5h2V9z"/>'),
