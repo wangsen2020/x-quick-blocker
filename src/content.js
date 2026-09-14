@@ -22,7 +22,25 @@
     maxPerRun: 50,               // 单次批量上限
     removeBlockedDom: true,      // 屏蔽成功后把该作者的推文/评论从当前页面移除
     logLimit: 500,
+    defaultsSeedVersion: 0,      // 内置词库合并到用户配置的版本号，见 seedDefaultFilters()
   };
+
+  // 内置默认关键词——常见的“同城/擦边”引流评论话术。首次启动（或版本号
+  // 提升）时会一次性合并进用户已有的词库，之后用户自己删掉就不会再加回来。
+  const DEFAULT_SEED_VERSION = 1;
+  const DEFAULT_KEYWORDS = [
+    '没人比我', '我福不黑', '不信你看', '同城上门', '比我好看',
+    '不进入生活', '处男无偿', '我玩的开', '比我骚', '没我好看',
+    '果然太涩', '太涩了',
+  ];
+  // 逐字之间允许穿插 0~3 个任意字符（空格/标点/emoji），
+  // 应对垃圾评论常见的加空格、加表情绕过纯关键词匹配的手法
+  function loosePattern(phrase) {
+    return Array.from(phrase)
+      .map((c) => c.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+      .join('.{0,3}?');
+  }
+  const DEFAULT_REGEXES = DEFAULT_KEYWORDS.map(loosePattern);
 
   let cfg = Object.assign({}, DEFAULTS);
   let log = [];
@@ -101,6 +119,7 @@
           if (mirror && typeof mirror === 'object') { savedCfg = mirror; storeSet({ xqb_config: mirror }); }
         }
         cfg = Object.assign({}, DEFAULTS, savedCfg || {});
+        seedDefaultFilters();       // 内置词库合并进用户配置（仅追加，见函数注释）
         lsSet('xqb_config', cfg);   // 每次启动刷新镜像
 
         log = r.xqb_log || [];
@@ -119,6 +138,23 @@
     });
   }
   const saveCfg = () => { storeSet({ xqb_config: cfg }); lsSet('xqb_config', cfg); };
+
+  // 把内置默认词库/正则合并进 cfg（并集，不覆盖用户已有内容）。只在
+  // defaultsSeedVersion 落后于 DEFAULT_SEED_VERSION 时跑一次并落盘；
+  // 之后用户手动删掉某条默认词，不会在下次启动时又被加回来。
+  function seedDefaultFilters() {
+    if ((cfg.defaultsSeedVersion || 0) >= DEFAULT_SEED_VERSION) return false;
+    const kwSet = new Set(cfg.keywords || []);
+    const reSet = new Set(cfg.regexes || []);
+    let changed = false;
+    for (const k of DEFAULT_KEYWORDS) if (!kwSet.has(k)) { kwSet.add(k); changed = true; }
+    for (const r of DEFAULT_REGEXES) if (!reSet.has(r)) { reSet.add(r); changed = true; }
+    cfg.keywords = Array.from(kwSet);
+    cfg.regexes = Array.from(reSet);
+    cfg.defaultsSeedVersion = DEFAULT_SEED_VERSION;
+    saveCfg();
+    return changed;
+  }
   const saveQid = () => storeSet({ xqb_qid: Object.fromEntries(qidMap) });
   const saveFeat = () => storeSet({ xqb_feat: gqlFeatures });
   const saveLog = () => storeSet({ xqb_log: log.slice(0, cfg.logLimit) });
