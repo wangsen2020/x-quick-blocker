@@ -594,7 +594,18 @@
     return n;
   }
 
+  // 悬浮球只在「有推文可操作」的页面出现：时间线、详情页、搜索结果、书签……
+  // 消息私信、设置、Grok 对话这类页面上一个都不判断，靠是否存在推文节点直接
+  // 判定即可，比维护一堆 URL 规则更省事，SPA 内跳转也能自动跟上。
+  function updateFabVisibility() {
+    if (!fabEl) return;
+    const hasPosts = !!document.querySelector('article[data-testid="tweet"]');
+    fabEl.style.display = hasPosts ? '' : 'none';
+    if (!hasPosts && panel) panel.classList.remove('xqb-open');
+  }
+
   function scanAll() {
+    updateFabVisibility();
     // 已屏蔽的账号如果被 X 重新渲染回来（切 Tab、虚拟列表回收复用），再清一次
     if (cfg.removeBlockedDom && blockedThisSession.size) {
       for (const hk of blockedThisSession) removeByHandle(hk);
