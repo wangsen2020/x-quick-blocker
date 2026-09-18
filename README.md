@@ -1,3 +1,7 @@
+![X Quick Blocker — 一键屏蔽、关键词扫描、确认后批量处理](docs/hero.svg)
+
+[![Manifest V3](https://img.shields.io/badge/Manifest-V3-20b8e5?style=flat-square&labelColor=0b1116)](https://developer.chrome.com/docs/extensions/develop/migrate/what-is-mv3) [![License: MIT](https://img.shields.io/badge/License-MIT-aec1cd?style=flat-square&labelColor=0b1116)](LICENSE) [![Chrome](https://img.shields.io/badge/Chrome-Extension-20b8e5?style=flat-square&labelColor=0b1116)](https://www.google.com/chrome/) [![Edge](https://img.shields.io/badge/Edge-Compatible-20b8e5?style=flat-square&labelColor=0b1116)](https://www.microsoft.com/edge)
+
 # X Quick Blocker
 
 在 X (Twitter) 上快速屏蔽用户的 Chrome 扩展：**每条推文旁加一个「屏蔽」按钮**，以及**按关键词扫描时间线、确认后批量屏蔽**。
@@ -9,6 +13,8 @@
 > 本文所有截图来自本地演示页面（用于展示界面），不是真实时间线。
 
 ## 功能
+
+![X Quick Blocker 功能概览：一键屏蔽、关键词筛选、节流退避、确认与撤销](docs/features.svg)
 
 - **一键屏蔽** —— 每条推文的操作栏最右边多一个「斜杠人形」图标，点一下直接拉黑作者，省掉「⋯ → 屏蔽 → 确认」三步。图标默认与 X 其它操作图标同色，悬停变红并显示提示
 - **关键词批量屏蔽** —— 关键词 / 正则匹配正文、昵称、用户名、简介，命中的账号进候选列表，**你确认后**才执行

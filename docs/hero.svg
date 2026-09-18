@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 400" role="img" aria-labelledby="title desc">
+  <title id="title">X Quick Blocker</title>
+  <desc id="desc">为 X 时间线提供一键屏蔽、关键词扫描和确认式批量处理的浏览器扩展。</desc>
+  <rect width="1280" height="400" fill="#0b1116"/>
+  <path d="M0 0H1280V400H0Z" fill="url(#grid)" opacity=".42"/>
+  <path d="M740 55C900 4 1114 49 1280 157V400H634C651 263 638 139 740 55Z" fill="#0f1d29"/>
+  <circle cx="1038" cy="174" r="174" fill="#152b3a" opacity=".75"/>
+  <circle cx="1038" cy="174" r="124" fill="none" stroke="#2b99d6" stroke-width="1" opacity=".32"/>
+  <circle cx="1038" cy="174" r="88" fill="none" stroke="#2b99d6" stroke-width="1" opacity=".25"/>
+  <g font-family="system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'PingFang SC', 'Microsoft YaHei', sans-serif">
+    <g transform="translate(896 73)">
+      <rect width="284" height="203" rx="18" fill="#0b1116" stroke="#29475a"/>
+      <rect x="20" y="20" width="244" height="34" rx="9" fill="#132431"/>
+      <circle cx="38" cy="37" r="8" fill="#20b8e5"/>
+      <rect x="56" y="32" width="91" height="9" rx="4.5" fill="#d9e6ee" opacity=".9"/>
+      <rect x="20" y="72" width="244" height="1" fill="#29475a"/>
+      <circle cx="43" cy="103" r="16" fill="#253e50"/>
+      <rect x="69" y="91" width="116" height="9" rx="4.5" fill="#d9e6ee" opacity=".88"/>
+      <rect x="69" y="109" width="154" height="7" rx="3.5" fill="#6f8797" opacity=".65"/>
+      <rect x="69" y="125" width="100" height="7" rx="3.5" fill="#6f8797" opacity=".45"/>
+      <rect x="218" y="144" width="46" height="38" rx="10" fill="#20b8e5"/>
+      <path d="M234 154l14 18m0-18l-14 18M237 150v26m8-26v26" stroke="#071116" stroke-width="3" stroke-linecap="round"/>
+      <rect x="20" y="151" width="176" height="7" rx="3.5" fill="#6f8797" opacity=".35"/>
+      <rect x="20" y="168" width="142" height="7" rx="3.5" fill="#6f8797" opacity=".28"/>
+    </g>
+    <g transform="translate(88 78)">
+      <g fill="#20b8e5">
+        <path d="M20 0c11 0 20 9 20 20s-9 20-20 20S0 31 0 20 9 0 20 0Zm-6 10v8H9v5h5v8h5v-8h5v-5h-5v-8h-5Z"/>
+      </g>
+      <text x="54" y="27" fill="#93aab8" font-size="16" font-weight="700" letter-spacing="2">BROWSER EXTENSION · MANIFEST V3</text>
+      <text x="0" y="112" fill="#f5f9fb" font-size="58" font-weight="800" letter-spacing="-2">X Quick Blocker</text>
+      <text x="0" y="157" fill="#aec1cd" font-size="24">更干净地浏览 X：识别、确认、屏蔽。</text>
+      <text x="0" y="194" fill="#728b9a" font-size="16">一键屏蔽用户 · 本地关键词扫描 · 批量操作由你确认</text>
+      <g transform="translate(0 232)">
+        <rect width="156" height="48" rx="24" fill="#122937" stroke="#24526a"/>
+        <circle cx="25" cy="24" r="7" fill="#20b8e5"/>
+        <text x="43" y="29" fill="#e5f4f9" font-size="15" font-weight="700">一键屏蔽</text>
+        <rect x="170" width="172" height="48" rx="24" fill="#122937" stroke="#24526a"/>
+        <path d="M193 18h13m-13 6h19m-19 6h11" stroke="#20b8e5" stroke-width="2.5" stroke-linecap="round"/>
+        <text x="221" y="29" fill="#e5f4f9" font-size="15" font-weight="700">关键词扫描</text>
+        <rect x="356" width="172" height="48" rx="24" fill="#122937" stroke="#24526a"/>
+        <path d="M379 25l6 6 12-14" fill="none" stroke="#20b8e5" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <text x="407" y="29" fill="#e5f4f9" font-size="15" font-weight="700">确认后批量处理</text>
+      </g>
+    </g>
+  </g>
+  <defs>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse"><path d="M32 0H0V32" fill="none" stroke="#315063" stroke-width="1"/></pattern>
+  </defs>
+</svg>
