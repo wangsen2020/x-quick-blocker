@@ -140,6 +140,10 @@ _locales/                 界面文案多语言（en / zh_CN / zh_TW / ja，69 �
 docs/                     README 截图
 ```
 
+## 隐私
+
+不收集、不上传任何数据到开发者或第三方，详见 [PRIVACY.md](PRIVACY.md)。
+
 ## License
 
 MIT
