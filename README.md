@@ -2,15 +2,27 @@
 
 [![Manifest V3](https://img.shields.io/badge/Manifest-V3-20b8e5?style=flat-square&labelColor=0b1116)](https://developer.chrome.com/docs/extensions/develop/migrate/what-is-mv3) [![License: MIT](https://img.shields.io/badge/License-MIT-aec1cd?style=flat-square&labelColor=0b1116)](LICENSE) [![Chrome](https://img.shields.io/badge/Chrome-Extension-20b8e5?style=flat-square&labelColor=0b1116)](https://www.google.com/chrome/) [![Edge](https://img.shields.io/badge/Edge-Compatible-20b8e5?style=flat-square&labelColor=0b1116)](https://www.microsoft.com/edge)
 
-# X Quick Blocker
+# X Quick Blocker — X / Twitter 一键屏蔽 & 关键词批量拉黑 Chrome 扩展
 
-在 X (Twitter) 上快速屏蔽用户的 Chrome 扩展：**每条推文旁加一个「屏蔽」按钮**，以及**按关键词扫描时间线、确认后批量屏蔽**。
+**X Quick Blocker** 是一款开源、免费、纯本地运行的 Chrome 扩展（Manifest V3），用于在 **X（原 Twitter）** 上快速屏蔽骚扰、广告、擦边引流账号：**每条推文旁加一个「屏蔽」按钮（one-click block）**，以及**按关键词 / 正则表达式扫描时间线、确认后批量屏蔽（keyword & regex batch block）**。
 
-不需要 X 的 API key，不需要付费 API tier，不上传任何数据到第三方。
+不需要 X 的 API key，不需要付费 API tier，不上传任何数据到第三方，也不会把你加入任何黑名单共享网络——所有词库、日志、缓存都只存在你自己的浏览器里。适合用来清理**同城引流、色情营销、加密货币空投诈骗（crypto airdrop scam）、私信骚扰**等垃圾账号，是 X/Twitter 官方「屏蔽」「静音」功能之外的批量效率工具。
+
+`X Quick Blocker` a.k.a. **X blocker / Twitter blocker Chrome extension**, **X keyword filter**, **Twitter spam blocker**, **X mass block tool** — free & open source (MIT), no login server, no tracking.
 
 ![推文旁的屏蔽按钮](docs/01-inline-button.png)
 
 > 本文所有截图来自本地演示页面（用于展示界面），不是真实时间线。
+
+## 快速导航
+
+- [功能](#功能)
+- [安装](#安装)
+- [使用](#使用)
+- [技术实现](#技术实现)
+- [风险与注意](#风险与注意)
+- [常见问题 FAQ](#常见问题-faq)
+- [目录结构](#目录结构)
 
 ## 功能
 
@@ -104,7 +116,19 @@
 - 自动化账号操作在 X 的自动化规则下属于灰区。自用、低频、针对骚扰和营销内容，风险较低；大规模使用请自行权衡。
 - 关键词误伤很常见，**强烈建议保持半自动模式**（默认），执行前扫一眼候选列表。
 
-## 目录
+## 常见问题 FAQ
+
+**这个 X/Twitter 屏蔽插件收费吗？** 不收费，MIT 开源协议，源码全部在本仓库，不联网上传任何数据。
+
+**怎么批量屏蔽 X（推特）上的营销号 / 擦边引流账号？** 在 [词库](#2-配置关键词) 页填关键词或正则，开启 [关键词扫描](#3-扫描并批量屏蔽) 后正常刷时间线，命中账号会进候选列表，确认后一键批量屏蔽。
+
+**和 X 官方自带的「屏蔽」「静音」有什么区别？** 官方功能只能一个一个手动点；本插件在此基础上加了**批量**、**关键词/正则自动识别**、**屏蔽后立即清理页面上的相关推文和评论**，以及**误屏蔽一键撤销**。
+
+**会不会被 X 判定为自动化账号导致封号？** 插件只调用 X 网页版自己在用的内部接口，模拟正常点击频率（默认间隔 1.5s+ 随机抖动），不做批量注册、批量关注等高风险行为；但仍建议保持默认的保守参数，见 [风险与注意](#风险与注意)。
+
+**支持 Edge / 其它 Chromium 内核浏览器吗？** 支持，Manifest V3 标准扩展，Edge、Brave、Arc 等 Chromium 内核浏览器均可加载。
+
+## 目录结构
 
 ```
 manifest.json
