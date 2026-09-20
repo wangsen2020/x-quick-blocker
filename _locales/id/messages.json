@@ -1,0 +1,209 @@
+{
+  "btnBlockTip": {
+    "message": "Blokir @$1"
+  },
+  "btnWorking": {
+    "message": "Memblokir…"
+  },
+  "btnBlocked": {
+    "message": "Diblokir"
+  },
+  "btnFailed": {
+    "message": "Gagal — klik untuk coba lagi"
+  },
+  "tabCandidates": {
+    "message": "Kandidat"
+  },
+  "tabKeywords": {
+    "message": "Filter"
+  },
+  "tabLog": {
+    "message": "Log"
+  },
+  "tabSettings": {
+    "message": "Setelan"
+  },
+  "btnSelectAll": {
+    "message": "Pilih semua"
+  },
+  "btnClearList": {
+    "message": "Kosongkan"
+  },
+  "btnBlockChecked": {
+    "message": "Blokir yang dipilih"
+  },
+  "btnStop": {
+    "message": "Hentikan"
+  },
+  "btnIgnore": {
+    "message": "Abaikan"
+  },
+  "btnUnblock": {
+    "message": "Buka blokir"
+  },
+  "btnUnblocked": {
+    "message": "Blokir dibuka"
+  },
+  "statusReady": {
+    "message": "Siap"
+  },
+  "statusRunning": {
+    "message": "Berjalan: $1 selesai / $2 gagal / $3 tersisa"
+  },
+  "statusDone": {
+    "message": "Selesai: $1 diblokir, $2 gagal"
+  },
+  "statusLastFail": {
+    "message": " | galat terakhir: $1"
+  },
+  "statusBackoff": {
+    "message": "Kena batas — menunggu $1 dtk (percobaan $2 untuk @$3)"
+  },
+  "toastBatchEnd": {
+    "message": "Batch selesai: $1 diblokir, $2 gagal"
+  },
+  "toastRateLimited": {
+    "message": "Kena batas — mencoba @$2 lagi dalam $1 dtk"
+  },
+  "toastMaxPerRun": {
+    "message": "Mencapai batas $1 per proses — berhenti"
+  },
+  "toastNoChecked": {
+    "message": "Tidak ada yang dipilih"
+  },
+  "toastStopRequested": {
+    "message": "Permintaan berhenti dikirim"
+  },
+  "toastBlocked": {
+    "message": "@$1 diblokir"
+  },
+  "toastBlockedRemoved": {
+    "message": "@$1 diblokir — $2 postingan dihapus"
+  },
+  "toastBlockFailed": {
+    "message": "Gagal memblokir @$1: $2"
+  },
+  "toastListSaved": {
+    "message": "$1 tersimpan ($2 entri)"
+  },
+  "confirmBatch": {
+    "message": "Blokir $1 akun, dengan jeda sekitar $2 dtk. Lanjutkan?"
+  },
+  "emptyScanOn": {
+    "message": "Belum ada yang cocok — teruskan menggulir"
+  },
+  "emptyScanOff": {
+    "message": "Pemindaian nonaktif (aktifkan di Setelan)"
+  },
+  "emptyLog": {
+    "message": "Tidak ada entri"
+  },
+  "optEnabled": {
+    "message": "Aktifkan ekstensi"
+  },
+  "optInlineButton": {
+    "message": "Tampilkan ikon blokir di postingan"
+  },
+  "optScan": {
+    "message": "Aktifkan pemindaian kata kunci"
+  },
+  "optAuto": {
+    "message": "Otomatis penuh (blokir saat cocok, tanpa konfirmasi) ⚠️"
+  },
+  "optRemoveDom": {
+    "message": "Hapus postingan mereka dari halaman setelah diblokir"
+  },
+  "secMatchScope": {
+    "message": "Cocokkan dengan:"
+  },
+  "optMatchText": {
+    "message": "Teks postingan"
+  },
+  "optMatchName": {
+    "message": "Nama tampilan"
+  },
+  "optMatchHandle": {
+    "message": "Nama pengguna"
+  },
+  "optMatchBio": {
+    "message": "Bio (jika tersedia)"
+  },
+  "secThrottle": {
+    "message": "Pembatasan laju:"
+  },
+  "fieldDelay": {
+    "message": "Jeda ms"
+  },
+  "fieldJitter": {
+    "message": "Variasi ms"
+  },
+  "fieldMaxPerRun": {
+    "message": "Maks. per proses"
+  },
+  "noteThrottle": {
+    "message": "Terlalu cepat bisa memicu batas laju X atau pemeriksaan akun. Pertahankan jeda 1,5 dtk ke atas dan batas 50 ke bawah."
+  },
+  "labelKeywords": {
+    "message": "Kata kunci (satu per baris, tidak peka huruf besar/kecil)"
+  },
+  "labelRegexes": {
+    "message": "Regex (satu per baris, sintaks JS, tanpa garis miring)"
+  },
+  "labelWhitelist": {
+    "message": "Daftar izin nama pengguna (satu per baris, tanpa @)"
+  },
+  "phKeywords": {
+    "message": "airdrop kripto\ngiveaway\nDM aku"
+  },
+  "phRegexes": {
+    "message": "^(?=.*airdrop)(?=.*DM).*$"
+  },
+  "phWhitelist": {
+    "message": "temankamu"
+  },
+  "reasonManual": {
+    "message": "Manual"
+  },
+  "reasonBatch": {
+    "message": "Batch"
+  },
+  "reasonHit": {
+    "message": "Cocok dengan “$1”"
+  },
+  "errNoCt0": {
+    "message": "Belum masuk, atau cookie ct0 tidak ada"
+  },
+  "errRateLimited": {
+    "message": "Kena batas laju API (429)"
+  },
+  "errNoUserId": {
+    "message": "Tidak dapat menentukan user_id ($1)"
+  },
+  "errNoQueryId": {
+    "message": "Belum melihat queryId UserByScreenName"
+  },
+  "errUbsnFailed": {
+    "message": "UserByScreenName gagal: $1"
+  },
+  "errUbsnFeatures": {
+    "message": "Negosiasi fitur UserByScreenName gagal"
+  },
+  "errNoIdStr": {
+    "message": "Respons tidak memuat id_str"
+  },
+  "hintVisitProfile": {
+    "message": " | Buka profil pengguna mana pun sekali — ekstensi mempelajari parameter internal X dari kunjungan itu (cukup sekali, setelah itu diingat)"
+  },
+  "popupNote": {
+    "message": "Filter, daftar izin, dan pembatasan laju ada di panel 🛡 di kanan bawah x.com."
+  },
+  "extName": {
+    "message": "X Quick Blocker - Blokir Spam di X/Twitter"
+  },
+  "extDesc": {
+    "message": "Blokir satu klik di X (Twitter), plus pemindaian kata kunci dan blokir massal dengan konfirmasi."
+  },
+  "btnFailedShort": {
+    "message": "Gagal"
+  }
+}

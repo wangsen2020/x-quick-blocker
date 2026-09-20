@@ -1,0 +1,209 @@
+{
+  "btnBlockTip": {
+    "message": "Bloquear @$1"
+  },
+  "btnWorking": {
+    "message": "Bloqueando…"
+  },
+  "btnBlocked": {
+    "message": "Bloqueado"
+  },
+  "btnFailed": {
+    "message": "Falhou — clique para tentar de novo"
+  },
+  "tabCandidates": {
+    "message": "Candidatos"
+  },
+  "tabKeywords": {
+    "message": "Filtros"
+  },
+  "tabLog": {
+    "message": "Registro"
+  },
+  "tabSettings": {
+    "message": "Configurações"
+  },
+  "btnSelectAll": {
+    "message": "Selecionar tudo"
+  },
+  "btnClearList": {
+    "message": "Limpar"
+  },
+  "btnBlockChecked": {
+    "message": "Bloquear selecionados"
+  },
+  "btnStop": {
+    "message": "Parar"
+  },
+  "btnIgnore": {
+    "message": "Ignorar"
+  },
+  "btnUnblock": {
+    "message": "Desbloquear"
+  },
+  "btnUnblocked": {
+    "message": "Desbloqueado"
+  },
+  "statusReady": {
+    "message": "Pronto"
+  },
+  "statusRunning": {
+    "message": "Em andamento: $1 concluídos / $2 falhas / $3 restantes"
+  },
+  "statusDone": {
+    "message": "Concluído: $1 bloqueados, $2 falhas"
+  },
+  "statusLastFail": {
+    "message": " | último erro: $1"
+  },
+  "statusBackoff": {
+    "message": "Limite atingido — aguardando $1 s (tentativa $2 para @$3)"
+  },
+  "toastBatchEnd": {
+    "message": "Lote finalizado: $1 bloqueados, $2 falhas"
+  },
+  "toastRateLimited": {
+    "message": "Limite atingido — tentando @$2 em $1 s"
+  },
+  "toastMaxPerRun": {
+    "message": "Limite de $1 por execução atingido — parando"
+  },
+  "toastNoChecked": {
+    "message": "Nada selecionado"
+  },
+  "toastStopRequested": {
+    "message": "Parada solicitada"
+  },
+  "toastBlocked": {
+    "message": "@$1 bloqueado"
+  },
+  "toastBlockedRemoved": {
+    "message": "@$1 bloqueado — $2 publicações removidas"
+  },
+  "toastBlockFailed": {
+    "message": "Falha ao bloquear @$1: $2"
+  },
+  "toastListSaved": {
+    "message": "$1 salvo ($2 itens)"
+  },
+  "confirmBatch": {
+    "message": "Bloquear $1 contas, com cerca de $2 s de intervalo. Continuar?"
+  },
+  "emptyScanOn": {
+    "message": "Nenhuma correspondência ainda — continue rolando"
+  },
+  "emptyScanOff": {
+    "message": "A varredura está desativada (ative em Configurações)"
+  },
+  "emptyLog": {
+    "message": "Nenhum registro"
+  },
+  "optEnabled": {
+    "message": "Ativar a extensão"
+  },
+  "optInlineButton": {
+    "message": "Mostrar ícone de bloqueio nas publicações"
+  },
+  "optScan": {
+    "message": "Ativar varredura por palavras-chave"
+  },
+  "optAuto": {
+    "message": "Totalmente automático (bloquear ao corresponder, sem confirmação) ⚠️"
+  },
+  "optRemoveDom": {
+    "message": "Remover as publicações da pessoa da página após bloquear"
+  },
+  "secMatchScope": {
+    "message": "Comparar com:"
+  },
+  "optMatchText": {
+    "message": "Texto da publicação"
+  },
+  "optMatchName": {
+    "message": "Nome de exibição"
+  },
+  "optMatchHandle": {
+    "message": "Nome de usuário"
+  },
+  "optMatchBio": {
+    "message": "Bio (quando disponível)"
+  },
+  "secThrottle": {
+    "message": "Controle de ritmo:"
+  },
+  "fieldDelay": {
+    "message": "Intervalo ms"
+  },
+  "fieldJitter": {
+    "message": "Variação ms"
+  },
+  "fieldMaxPerRun": {
+    "message": "Máx. por execução"
+  },
+  "noteThrottle": {
+    "message": "Ir rápido demais pode acionar os limites do X ou verificações de conta. Mantenha o intervalo em 1,5 s ou mais e o limite em 50 ou menos."
+  },
+  "labelKeywords": {
+    "message": "Palavras-chave (uma por linha, sem diferenciar maiúsculas)"
+  },
+  "labelRegexes": {
+    "message": "Regex (uma por linha, sintaxe JS, sem barras)"
+  },
+  "labelWhitelist": {
+    "message": "Contas na lista de permissões (uma por linha, sem @)"
+  },
+  "phKeywords": {
+    "message": "airdrop de cripto\nsorteio\nchama no direct"
+  },
+  "phRegexes": {
+    "message": "^(?=.*airdrop)(?=.*direct).*$"
+  },
+  "phWhitelist": {
+    "message": "seuamigo"
+  },
+  "reasonManual": {
+    "message": "Manual"
+  },
+  "reasonBatch": {
+    "message": "Lote"
+  },
+  "reasonHit": {
+    "message": "Correspondeu a “$1”"
+  },
+  "errNoCt0": {
+    "message": "Você não está conectado ou o cookie ct0 está ausente"
+  },
+  "errRateLimited": {
+    "message": "Limite da API atingido (429)"
+  },
+  "errNoUserId": {
+    "message": "Não foi possível resolver o user_id ($1)"
+  },
+  "errNoQueryId": {
+    "message": "O queryId de UserByScreenName ainda não foi observado"
+  },
+  "errUbsnFailed": {
+    "message": "UserByScreenName falhou: $1"
+  },
+  "errUbsnFeatures": {
+    "message": "A negociação de recursos do UserByScreenName falhou"
+  },
+  "errNoIdStr": {
+    "message": "A resposta não tinha id_str"
+  },
+  "hintVisitProfile": {
+    "message": " | Abra o perfil de qualquer usuário uma vez — a extensão aprende os parâmetros internos do X nessa visita (só uma vez, depois ela lembra)"
+  },
+  "popupNote": {
+    "message": "Filtros, lista de permissões e controle de ritmo ficam no painel 🛡 no canto inferior direito do x.com."
+  },
+  "extName": {
+    "message": "X Quick Blocker - Bloquear spam no X/Twitter"
+  },
+  "extDesc": {
+    "message": "Bloqueio com um clique no X (Twitter), com varredura por palavras-chave e bloqueio em lote mediante confirmação."
+  },
+  "btnFailedShort": {
+    "message": "Falhou"
+  }
+}

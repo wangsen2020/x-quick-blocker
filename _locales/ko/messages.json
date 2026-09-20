@@ -1,0 +1,209 @@
+{
+  "btnBlockTip": {
+    "message": "@$1 차단"
+  },
+  "btnWorking": {
+    "message": "차단 중…"
+  },
+  "btnBlocked": {
+    "message": "차단됨"
+  },
+  "btnFailed": {
+    "message": "실패 — 클릭하면 다시 시도"
+  },
+  "tabCandidates": {
+    "message": "후보"
+  },
+  "tabKeywords": {
+    "message": "필터"
+  },
+  "tabLog": {
+    "message": "기록"
+  },
+  "tabSettings": {
+    "message": "설정"
+  },
+  "btnSelectAll": {
+    "message": "전체 선택"
+  },
+  "btnClearList": {
+    "message": "비우기"
+  },
+  "btnBlockChecked": {
+    "message": "선택 항목 차단"
+  },
+  "btnStop": {
+    "message": "중지"
+  },
+  "btnIgnore": {
+    "message": "무시"
+  },
+  "btnUnblock": {
+    "message": "차단 해제"
+  },
+  "btnUnblocked": {
+    "message": "차단 해제됨"
+  },
+  "statusReady": {
+    "message": "준비됨"
+  },
+  "statusRunning": {
+    "message": "진행 중: 완료 $1 / 실패 $2 / 남음 $3"
+  },
+  "statusDone": {
+    "message": "완료: $1개 차단, $2개 실패"
+  },
+  "statusLastFail": {
+    "message": " | 마지막 오류: $1"
+  },
+  "statusBackoff": {
+    "message": "요청 제한 — $1초 대기 중 (@$3에 대한 $2번째 재시도)"
+  },
+  "toastBatchEnd": {
+    "message": "일괄 작업 완료: $1개 차단, $2개 실패"
+  },
+  "toastRateLimited": {
+    "message": "요청 제한 — $1초 후 @$2 재시도"
+  },
+  "toastMaxPerRun": {
+    "message": "1회 실행 한도 $1개에 도달 — 중지합니다"
+  },
+  "toastNoChecked": {
+    "message": "선택된 항목이 없습니다"
+  },
+  "toastStopRequested": {
+    "message": "중지를 요청했습니다"
+  },
+  "toastBlocked": {
+    "message": "@$1 차단됨"
+  },
+  "toastBlockedRemoved": {
+    "message": "@$1 차단됨 — 게시물 $2개 제거"
+  },
+  "toastBlockFailed": {
+    "message": "@$1 차단 실패: $2"
+  },
+  "toastListSaved": {
+    "message": "$1 저장됨 ($2개 항목)"
+  },
+  "confirmBatch": {
+    "message": "약 $2초 간격으로 계정 $1개를 차단합니다. 계속할까요?"
+  },
+  "emptyScanOn": {
+    "message": "아직 일치 항목이 없습니다 — 계속 스크롤하세요"
+  },
+  "emptyScanOff": {
+    "message": "검사가 꺼져 있습니다 (설정에서 켜세요)"
+  },
+  "emptyLog": {
+    "message": "기록 없음"
+  },
+  "optEnabled": {
+    "message": "확장 프로그램 사용"
+  },
+  "optInlineButton": {
+    "message": "게시물에 차단 아이콘 표시"
+  },
+  "optScan": {
+    "message": "키워드 검사 사용"
+  },
+  "optAuto": {
+    "message": "완전 자동 (일치 시 확인 없이 차단) ⚠️"
+  },
+  "optRemoveDom": {
+    "message": "차단 후 해당 사용자의 게시물을 페이지에서 제거"
+  },
+  "secMatchScope": {
+    "message": "검사 대상:"
+  },
+  "optMatchText": {
+    "message": "게시물 본문"
+  },
+  "optMatchName": {
+    "message": "표시 이름"
+  },
+  "optMatchHandle": {
+    "message": "사용자 아이디"
+  },
+  "optMatchBio": {
+    "message": "소개 (가능한 경우)"
+  },
+  "secThrottle": {
+    "message": "속도 제한:"
+  },
+  "fieldDelay": {
+    "message": "간격 ms"
+  },
+  "fieldJitter": {
+    "message": "편차 ms"
+  },
+  "fieldMaxPerRun": {
+    "message": "1회 최대"
+  },
+  "noteThrottle": {
+    "message": "너무 빠르게 실행하면 X의 요청 제한이나 계정 확인이 걸릴 수 있습니다. 간격은 1.5초 이상, 한도는 50개 이하로 유지하세요."
+  },
+  "labelKeywords": {
+    "message": "키워드 (한 줄에 하나, 대소문자 구분 안 함)"
+  },
+  "labelRegexes": {
+    "message": "정규식 (한 줄에 하나, JS 문법, 슬래시 없이)"
+  },
+  "labelWhitelist": {
+    "message": "허용 목록 아이디 (한 줄에 하나, @ 없이)"
+  },
+  "phKeywords": {
+    "message": "코인 에어드랍\n이벤트 증정\nDM 주세요"
+  },
+  "phRegexes": {
+    "message": "^(?=.*에어드랍)(?=.*DM).*$"
+  },
+  "phWhitelist": {
+    "message": "내친구아이디"
+  },
+  "reasonManual": {
+    "message": "수동"
+  },
+  "reasonBatch": {
+    "message": "일괄"
+  },
+  "reasonHit": {
+    "message": "「$1」 일치"
+  },
+  "errNoCt0": {
+    "message": "로그인되어 있지 않거나 ct0 쿠키가 없습니다"
+  },
+  "errRateLimited": {
+    "message": "API 요청 제한에 걸렸습니다 (429)"
+  },
+  "errNoUserId": {
+    "message": "user_id를 확인할 수 없습니다 ($1)"
+  },
+  "errNoQueryId": {
+    "message": "아직 UserByScreenName의 queryId를 확인하지 못했습니다"
+  },
+  "errUbsnFailed": {
+    "message": "UserByScreenName 실패: $1"
+  },
+  "errUbsnFeatures": {
+    "message": "UserByScreenName 기능 협상에 실패했습니다"
+  },
+  "errNoIdStr": {
+    "message": "응답에 id_str이 없습니다"
+  },
+  "hintVisitProfile": {
+    "message": " | 아무 사용자 프로필이나 한 번 열어 주세요 — 그 방문에서 확장 프로그램이 X의 내부 매개변수를 학습합니다 (한 번만 하면 이후 기억합니다)"
+  },
+  "popupNote": {
+    "message": "필터, 허용 목록, 속도 제한은 x.com 오른쪽 아래 🛡 패널에 있습니다."
+  },
+  "extName": {
+    "message": "X Quick Blocker - X 스팸 일괄 차단"
+  },
+  "extDesc": {
+    "message": "X(트위터)에서 원클릭 차단, 키워드 검사로 스팸 계정을 확인 후 일괄 차단합니다."
+  },
+  "btnFailedShort": {
+    "message": "실패"
+  }
+}

@@ -198,7 +198,7 @@
     "message": "詞庫、白名單、節流參數在 x.com 頁面右下角 🛡 面板裡設定。"
   },
   "extName": {
-    "message": "X Quick Blocker"
+    "message": "X Quick Blocker - X/推特一鍵封鎖批次封鎖"
   },
   "extDesc": {
     "message": "在 X(Twitter) 上一鍵封鎖使用者，或按關鍵字掃描並批次封鎖（預設需人工確認）。"
