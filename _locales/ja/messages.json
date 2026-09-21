@@ -198,7 +198,7 @@
     "message": "フィルター・許可リスト・スロットリングは x.com 右下の 🛡 パネルで設定します。"
   },
   "extName": {
-    "message": "X Quick Blocker - Xのスパムを一括ブロック"
+    "message": "X Quick Blocker - Xのスパムをブロック"
   },
   "extDesc": {
     "message": "X(Twitter) でワンクリックブロック、キーワードによる一括ブロックにも対応（既定で確認あり）。"
