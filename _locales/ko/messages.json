@@ -198,10 +198,10 @@
     "message": "필터, 허용 목록, 속도 제한은 x.com 오른쪽 아래 🛡 패널에 있습니다."
   },
   "extName": {
-    "message": "X Quick Blocker - X 스팸 차단"
+    "message": "X Blocker - 스팸 자동 감지 및 일괄 차단"
   },
   "extDesc": {
-    "message": "X(트위터)에서 원클릭 차단, 키워드 검사로 스팸 계정을 확인 후 일괄 차단합니다."
+    "message": "키워드나 정규식으로 X(트위터)의 스팸 계정을 자동 감지하고, 확인 후 한 번에 일괄 차단합니다."
   },
   "btnFailedShort": {
     "message": "실패"

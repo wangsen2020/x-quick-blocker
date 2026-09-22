@@ -1,14 +1,14 @@
-![X Quick Blocker — 一键屏蔽、关键词扫描、确认后批量处理](docs/hero.svg)
+![X Blocker — 一键屏蔽、关键词扫描、确认后批量处理](docs/hero.svg)
 
 [![Manifest V3](https://img.shields.io/badge/Manifest-V3-20b8e5?style=flat-square&labelColor=0b1116)](https://developer.chrome.com/docs/extensions/develop/migrate/what-is-mv3) [![License: MIT](https://img.shields.io/badge/License-MIT-aec1cd?style=flat-square&labelColor=0b1116)](LICENSE) [![Chrome](https://img.shields.io/badge/Chrome-Extension-20b8e5?style=flat-square&labelColor=0b1116)](https://www.google.com/chrome/) [![Edge](https://img.shields.io/badge/Edge-Compatible-20b8e5?style=flat-square&labelColor=0b1116)](https://www.microsoft.com/edge)
 
-# X Quick Blocker — X / Twitter 一键屏蔽 & 关键词批量拉黑 Chrome 扩展
+# X Blocker — X / Twitter 一键屏蔽 & 关键词批量拉黑 Chrome 扩展
 
-**X Quick Blocker** 是一款开源、免费、纯本地运行的 Chrome 扩展（Manifest V3），用于在 **X（原 Twitter）** 上快速屏蔽骚扰、广告、擦边引流账号：**每条推文旁加一个「屏蔽」按钮（one-click block）**，以及**按关键词 / 正则表达式扫描时间线、确认后批量屏蔽（keyword & regex batch block）**。
+**X Blocker** 是一款开源、免费、纯本地运行的 Chrome 扩展（Manifest V3），用于在 **X（原 Twitter）** 上快速屏蔽骚扰、广告、擦边引流账号：**每条推文旁加一个「屏蔽」按钮（one-click block）**，以及**按关键词 / 正则表达式扫描时间线、确认后批量屏蔽（keyword & regex batch block）**。
 
 不需要 X 的 API key，不需要付费 API tier，不上传任何数据到第三方，也不会把你加入任何黑名单共享网络——所有词库、日志、缓存都只存在你自己的浏览器里。适合用来清理**同城引流、色情营销、加密货币空投诈骗（crypto airdrop scam）、私信骚扰**等垃圾账号，是 X/Twitter 官方「屏蔽」「静音」功能之外的批量效率工具。
 
-`X Quick Blocker` a.k.a. **X blocker / Twitter blocker Chrome extension**, **X keyword filter**, **Twitter spam blocker**, **X mass block tool** — free & open source (MIT), no login server, no tracking.
+`X Blocker` a.k.a. **X blocker / Twitter blocker Chrome extension**, **X keyword filter**, **Twitter spam blocker**, **X mass block tool** — free & open source (MIT), no login server, no tracking.
 
 ![推文旁的屏蔽按钮](docs/01-inline-button.png)
 
@@ -26,7 +26,7 @@
 
 ## 功能
 
-![X Quick Blocker 功能概览：一键屏蔽、关键词筛选、节流退避、确认与撤销](docs/features.svg)
+![X Blocker 功能概览：一键屏蔽、关键词筛选、节流退避、确认与撤销](docs/features.svg)
 
 - **一键屏蔽** —— 每条推文的操作栏最右边多一个「斜杠人形」图标，点一下直接拉黑作者，省掉「⋯ → 屏蔽 → 确认」三步。图标默认与 X 其它操作图标同色，悬停变红并显示提示
 - **关键词批量屏蔽** —— 关键词 / 正则匹配正文、昵称、用户名、简介，命中的账号进候选列表，**你确认后**才执行
@@ -35,7 +35,9 @@
 
 ## 安装
 
-暂未上架 Chrome 商店，手动加载：
+**[⬇ 从 Chrome 网上应用店安装](https://chromewebstore.google.com/detail/jlkifagakjajaamkgbjfplnegeggicni)**（推荐）
+
+或者手动加载开发版：
 
 1. 下载本仓库（`Code → Download ZIP`）并解压到一个**固定目录**（别放临时文件夹，Chrome 每次启动都要读它）
 2. 打开 `chrome://extensions/`
@@ -51,7 +53,7 @@
 
 打开 x.com，每条推文的操作栏最右边会多一个「斜杠人形」图标，点一下即可。
 
-图标不带文字，靠 tooltip 说明用途——悬停时显示「屏蔽 @用户名」，跟随浏览器语言自动切换。**整个面板（候选 / 词库 / 日志 / 设置）以及扩展名称、描述都已本地化**，内置英文、简体中文、繁体中文、日文，见 `_locales/`。缺语言包时回落英文。
+图标不带文字，靠 tooltip 说明用途——悬停时显示「屏蔽 @用户名」，跟随浏览器语言自动切换。**整个面板（候选 / 词库 / 日志 / 设置）以及扩展名称、描述都已本地化**，内置英文、简体中文、繁体中文、日文、韩文、西班牙文、葡萄牙文、印尼文，见 `_locales/`。缺语言包时回落英文。
 
 状态用颜色和图形区分：静默态灰色、悬停红色、执行中转圈、成功变绿勾、失败变黄色感叹号（悬停可看失败原因，点击重试）。屏蔽成功后该作者的推文会直接从页面移除。
 
@@ -136,7 +138,7 @@ popup.html / popup.js     浏览器工具栏的快捷开关
 src/inject.js             MAIN world hook（抓 token / user id / queryId）
 src/content.js            主逻辑 + 面板 UI
 src/panel.css             样式
-_locales/                 界面文案多语言（en / zh_CN / zh_TW / ja，69 条）
+_locales/                 界面文案多语言（en / zh_CN / zh_TW / ja / ko / es / pt_BR / id，各 69 条）
 docs/                     README 截图
 ```
 

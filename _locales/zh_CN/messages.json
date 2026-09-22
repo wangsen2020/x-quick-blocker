@@ -198,10 +198,10 @@
     "message": "词库、白名单、节流参数在 x.com 页面右下角 🛡 面板里设置。"
   },
   "extName": {
-    "message": "X Quick Blocker - 一键屏蔽 X 上的垃圾账号"
+    "message": "X Blocker - 自动识别并批量屏蔽推特垃圾号"
   },
   "extDesc": {
-    "message": "在 X(Twitter) 上一键屏蔽用户，或按关键词扫描并批量屏蔽（默认需人工确认）。"
+    "message": "按关键词或正则自动识别 X（推特）上的垃圾账号，确认后批量屏蔽，无需逐个点击。"
   },
   "btnFailedShort": {
     "message": "失败"

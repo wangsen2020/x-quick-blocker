@@ -198,10 +198,10 @@
     "message": "Los filtros, la lista blanca y el control de ritmo están en el panel 🛡 de la esquina inferior derecha de x.com."
   },
   "extName": {
-    "message": "X Quick Blocker - Bloquear spam en X/Twitter"
+    "message": "X Blocker - Detecta y bloquea spam en lote"
   },
   "extDesc": {
-    "message": "Bloqueo con un clic en X (Twitter), más escaneo por palabras clave y bloqueo por lotes con confirmación previa."
+    "message": "Detecta automáticamente cuentas de spam en X (Twitter) por palabra clave o regex y las bloquea en lote tras tu confirmación."
   },
   "btnFailedShort": {
     "message": "Error"

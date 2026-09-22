@@ -198,10 +198,10 @@
     "message": "Filters, allowlist and throttling live in the 🛡 panel at the bottom right of x.com."
   },
   "extName": {
-    "message": "X Quick Blocker - Block Spam on X/Twitter"
+    "message": "X Blocker - Auto-Detect & Bulk Block Spam"
   },
   "extDesc": {
-    "message": "One-click block on X (Twitter), plus keyword scanning and batch blocking (confirmation required by default)."
+    "message": "Automatically flags spam accounts on X (Twitter) by keyword or regex, then blocks them in bulk after you confirm."
   },
   "btnFailedShort": {
     "message": "Failed"

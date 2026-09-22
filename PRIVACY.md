@@ -1,8 +1,8 @@
-# Privacy Policy — X Quick Blocker
+# Privacy Policy — X Blocker
 
 _Last updated: 2026-09-19_
 
-**X Quick Blocker does not collect, transmit, sell, or share any personal or usage data with the developer or any third party.** It is a local-only Chrome extension: everything it does happens inside your own browser, talking directly to X's (Twitter's) own servers.
+**X Blocker does not collect, transmit, sell, or share any personal or usage data with the developer or any third party.** It is a local-only Chrome extension: everything it does happens inside your own browser, talking directly to X's (Twitter's) own servers.
 
 ## What the extension does
 

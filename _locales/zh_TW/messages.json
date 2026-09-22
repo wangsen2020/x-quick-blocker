@@ -198,10 +198,10 @@
     "message": "詞庫、白名單、節流參數在 x.com 頁面右下角 🛡 面板裡設定。"
   },
   "extName": {
-    "message": "X Quick Blocker - 一鍵封鎖 X 上的垃圾帳號"
+    "message": "X Blocker - 自動辨識並批次封鎖推特垃圾帳號"
   },
   "extDesc": {
-    "message": "在 X(Twitter) 上一鍵封鎖使用者，或按關鍵字掃描並批次封鎖（預設需人工確認）。"
+    "message": "依關鍵字或正規表示式自動辨識 X（推特）上的垃圾帳號，確認後批次封鎖，不必逐一點擊。"
   },
   "btnFailedShort": {
     "message": "失敗"

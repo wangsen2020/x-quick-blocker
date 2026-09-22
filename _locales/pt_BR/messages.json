@@ -198,10 +198,10 @@
     "message": "Filtros, lista de permissões e controle de ritmo ficam no painel 🛡 no canto inferior direito do x.com."
   },
   "extName": {
-    "message": "X Quick Blocker - Bloquear spam no X/Twitter"
+    "message": "X Blocker - Detecta e bloqueia spam em lote"
   },
   "extDesc": {
-    "message": "Bloqueio com um clique no X (Twitter), com varredura por palavras-chave e bloqueio em lote mediante confirmação."
+    "message": "Detecta automaticamente contas de spam no X (Twitter) por palavra-chave ou regex e bloqueia em lote após sua confirmação."
   },
   "btnFailedShort": {
     "message": "Falhou"
