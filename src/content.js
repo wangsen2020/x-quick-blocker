@@ -27,12 +27,31 @@
 
   // 内置默认关键词——常见的“同城/擦边”引流评论话术。首次启动（或版本号
   // 提升）时会一次性合并进用户已有的词库，之后用户自己删掉就不会再加回来。
-  const DEFAULT_SEED_VERSION = 1;
+  const DEFAULT_SEED_VERSION = 2;
   const DEFAULT_KEYWORDS = [
     '没人比我', '我福不黑', '不信你看', '同城上门', '比我好看',
-    '不进入生活', '处男无偿', '我玩的开', '比我骚', '没我好看',
-    '果然太涩', '太涩了',
+    '不进入生活', '不入生活', '只入身体', '处男无偿', '我玩的开',
+    '比我骚', '没我好看', '果然太涩', '太涩了',
   ];
+  // 垃圾评论的主流绕过手法是往每个汉字之间插零宽字符（ZWNJ/ZWJ/WORD JOINER…），
+  // 页面上一个像素都看不出来，但 innerText 里 "比我好看" 会变成十几个字符，
+  // 纯关键词和宽松正则全部落空。匹配前统一抹掉这些不可见字符。
+  // 覆盖：软连字符、组合字形连接符、Arabic letter mark、蒙文元音分隔符、
+  //       零宽/方向控制、字节序标记、变体选择符、Unicode 标签字符。
+  const INVISIBLE_RE =
+    /[­͏؜᠎​-‏‪-‮⁠-⁤⁪-⁯︀-️﻿]|[\u{e0000}-\u{e007f}]/gu;
+  // 只保留文字和数字：把空格、标点、emoji 也一并去掉，这样 "骚🐞🤯比" 这种
+  // 用表情拉开字距的写法也能被纯关键词命中。换行保留，避免昵称/正文/@ 串成一句
+  // 造成跨字段误命中。
+  const PUNCT_RE = /[^\p{L}\p{N}\n]/gu;
+
+  // NFKC 顺手把全角、带圈、上下标之类的花式写法折回普通字符
+  function normText(s) {
+    let out = String(s == null ? '' : s).replace(INVISIBLE_RE, '');
+    try { out = out.normalize('NFKC'); } catch (e) {}
+    return out;
+  }
+
   // 逐字之间允许穿插 0~3 个任意字符（空格/标点/emoji），
   // 应对垃圾评论常见的加空格、加表情绕过纯关键词匹配的手法
   function loosePattern(phrase) {
@@ -391,16 +410,27 @@
     if (cfg.matchHandle) parts.push(info.handle);
     if (cfg.matchBio && bioMap.has(h)) parts.push(bioMap.get(h).desc || '');
     const hay = parts.join('\n');
-    const low = hay.toLowerCase();
+    const norm = normText(hay);                    // 去不可见字符 + NFKC
+    const tight = norm.replace(PUNCT_RE, '');      // 再去空格/标点/emoji
+
+    // 原文也留着一份：用户自己写的关键词/正则可能就是冲着标点或全角形态去的
+    const kwHays = Array.from(new Set([hay, norm, tight])).map((s) => s.toLowerCase());
+    const reHays = Array.from(new Set([hay, norm, tight]));
 
     for (const kw of cfg.keywords || []) {
       const k = String(kw).trim();
       if (!k) continue;
-      if (low.includes(k.toLowerCase())) return { kind: 'kw', hit: k };
+      // 关键词本身同样归一化，否则用户从垃圾评论里复制粘贴来的词自带零宽字符
+      const cands = Array.from(new Set([k, normText(k), normText(k).replace(PUNCT_RE, '')]))
+        .filter(Boolean)
+        .map((s) => s.toLowerCase());
+      if (kwHays.some((h) => cands.some((c) => h.includes(c)))) return { kind: 'kw', hit: k };
     }
     for (const re of compiledRegexes()) {
-      const m = hay.match(re);
-      if (m) return { kind: 're', hit: `/${re.source}/ → ${m[0].slice(0, 30)}` };
+      for (const h of reHays) {
+        const m = h.match(re);
+        if (m) return { kind: 're', hit: `/${re.source}/ → ${m[0].slice(0, 30)}` };
+      }
     }
     return null;
   }
