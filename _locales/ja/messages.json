@@ -205,5 +205,11 @@
   },
   "btnFailedShort": {
     "message": "失敗"
+  },
+  "optDetectObf": {
+    "message": "不可視文字で埋められた投稿も検出する"
+  },
+  "hitObfuscated": {
+    "message": "不可視文字による難読化（$1%）"
   }
 }

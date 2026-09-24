@@ -205,5 +205,11 @@
   },
   "btnFailedShort": {
     "message": "실패"
+  },
+  "optDetectObf": {
+    "message": "보이지 않는 문자로 채운 게시물도 감지"
+  },
+  "hitObfuscated": {
+    "message": "숨은 문자 난독화($1%)"
   }
 }

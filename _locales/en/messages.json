@@ -205,5 +205,11 @@
   },
   "btnFailedShort": {
     "message": "Failed"
+  },
+  "optDetectObf": {
+    "message": "Also flag posts padded with hidden characters"
+  },
+  "hitObfuscated": {
+    "message": "Hidden-character obfuscation ($1%)"
   }
 }

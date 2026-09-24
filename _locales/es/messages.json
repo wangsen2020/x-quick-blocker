@@ -205,5 +205,11 @@
   },
   "btnFailedShort": {
     "message": "Error"
+  },
+  "optDetectObf": {
+    "message": "Detectar también publicaciones rellenadas con caracteres invisibles"
+  },
+  "hitObfuscated": {
+    "message": "Ofuscación con caracteres invisibles ($1 %)"
   }
 }

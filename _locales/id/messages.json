@@ -205,5 +205,11 @@
   },
   "btnFailedShort": {
     "message": "Gagal"
+  },
+  "optDetectObf": {
+    "message": "Deteksi juga postingan yang diisi karakter tersembunyi"
+  },
+  "hitObfuscated": {
+    "message": "Pengaburan karakter tersembunyi ($1%)"
   }
 }

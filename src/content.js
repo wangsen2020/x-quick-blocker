@@ -21,6 +21,7 @@
     jitterMs: 800,
     maxPerRun: 50,               // 单次批量上限
     removeBlockedDom: true,      // 屏蔽成功后把该作者的推文/评论从当前页面移除
+    detectObfuscated: true,      // 兜底：正文被隐形字符大量填充的，不看词库直接进候选
     logLimit: 500,
     defaultsSeedVersion: 0,      // 内置词库合并到用户配置的版本号，见 seedDefaultFilters()
   };
@@ -44,6 +45,27 @@
   // 用表情拉开字距的写法也能被纯关键词命中。换行保留，避免昵称/正文/@ 串成一句
   // 造成跨字段误命中。
   const PUNCT_RE = /[^\p{L}\p{N}\n]/gu;
+
+  // 兜底规则用的「可疑隐形字符」——注意比 INVISIBLE_RE 窄，刻意剔掉了三类
+  // 在正常文本里合法出现的隐形字符，否则会把普通 emoji 当成垃圾：
+  //   U+200D ZWJ        —— 👨‍👩‍👧 这类组合 emoji 的连接符，3 可见 + 2 连接 = 40%，会误判
+  //   U+FE00–FE0F       —— emoji 变体选择符（❤️ 的那个 FE0F）
+  //   U+E0020–U+E007F   —— 旗帜/子区域标签字符
+  // 剔掉这三类后，实测那批垃圾评论仍有 53%~60% 是可疑字符（光靠 ZWNJ 和
+  // WORD JOINER 就够了），而正常推文是 0%，中间隔着极宽的安全带。
+  const SUSPICIOUS_RE = /[­͏؜᠎​‌‎‏‪-‮⁠-⁤⁪-⁯﻿]/g;
+  const OBF_RATIO = 0.3;   // 可疑字符占比阈值
+  const OBF_MIN = 6;       // 可疑字符绝对个数下限，避免极短文本被比例放大误判
+
+  // 返回 0~1 的占比；不够触发条件就返回 0
+  function obfuscationRatio(text) {
+    const s = String(text == null ? '' : text);
+    if (s.length < 8) return 0;
+    const n = (s.match(SUSPICIOUS_RE) || []).length;
+    if (n < OBF_MIN) return 0;
+    const r = n / s.length;
+    return r >= OBF_RATIO ? r : 0;
+  }
 
   // NFKC 顺手把全角、带圈、上下标之类的花式写法折回普通字符
   function normText(s) {
@@ -430,6 +452,16 @@
       for (const h of reHays) {
         const m = h.match(re);
         if (m) return { kind: 're', hit: `/${re.source}/ → ${m[0].slice(0, 30)}` };
+      }
+    }
+
+    // 兜底：正文里塞了大量隐形字符本身就是垃圾特征，不依赖词库，换套新话术也拦得住。
+    // 放在最后——能命中具体关键词时优先报那个词，日志里更好查。
+    if (cfg.detectObfuscated && cfg.matchText) {
+      const r = obfuscationRatio(info.text);
+      if (r) {
+        const pct = Math.round(r * 100);
+        return { kind: 'obf', hit: t('hitObfuscated', [String(pct)], `Hidden-character obfuscation (${pct}%)`) };
       }
     }
     return null;
@@ -1042,6 +1074,7 @@ DM me`)),
       toggle(t('optScan', null, `Enable keyword scanning`), 'scanEnabled', () => { candidates.clear(); renderCandidates(); scanAll(); }),
       toggle(t('optAuto', null, `Fully automatic (block on match, no confirmation) ⚠️`), 'autoBlock'),
       toggle(t('optRemoveDom', null, `Remove their posts from the page after blocking`), 'removeBlockedDom'),
+      toggle(t('optDetectObf', null, `Also flag posts padded with hidden characters`), 'detectObfuscated', () => { candidates.clear(); renderCandidates(); scanAll(); }),
       h('div', { class: 'xqb-sub' }, t('secMatchScope', null, `Match against:`)),
       toggle(t('optMatchText', null, `Post text`), 'matchText'), toggle(t('optMatchName', null, `Display name`), 'matchName'),
       toggle(t('optMatchHandle', null, `Handle`), 'matchHandle'), toggle(t('optMatchBio', null, `Bio (when available)`), 'matchBio'),

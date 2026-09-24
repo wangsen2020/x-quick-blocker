@@ -205,5 +205,11 @@
   },
   "btnFailedShort": {
     "message": "失败"
+  },
+  "optDetectObf": {
+    "message": "同时识别用隐形字符填充的推文"
+  },
+  "hitObfuscated": {
+    "message": "隐形字符混淆（$1%）"
   }
 }
