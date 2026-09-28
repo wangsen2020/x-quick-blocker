@@ -489,6 +489,7 @@
     hideTip();
     if (!text) return;
     tipEl = document.createElement('div');
+    tipEl.id = 'xqb-tip';
     tipEl.className = 'xqb-tip';
     tipEl.setAttribute('role', 'tooltip');
     tipEl.textContent = text;
@@ -515,6 +516,8 @@
     if (document.getElementById(MASK_ID)) return;
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.setAttribute('class', 'xqb-defs');
+    // 内联样式天然压过作者样式，不需要 !important
+    svg.style.cssText = 'position:absolute;width:0;height:0;overflow:hidden';
     svg.setAttribute('aria-hidden', 'true');
     svg.innerHTML =
       `<defs><mask id="${MASK_ID}" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24">` +

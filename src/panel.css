@@ -1,71 +1,75 @@
-.xqb-btn-wrap { display:flex; align-items:center; }
-/* 用 !important + 双类名提高优先级：X 自己的按钮样式规则会覆盖掉普通声明 */
+/* 不用 !important：选择器按元素真实所在位置锚定来提高特异性。
+   - 操作栏按钮：article div[role="group"] > .xqb-btn-wrap > button.xqb-btn（0,3,3）
+   - tooltip：body > #xqb-tip（1,0,1）
+   X 只用单个原子类（0,1,0）和元素级 reset，所以这些选择器靠特异性就能赢；
+   别的代码（比如截图时要隐藏按钮）也仍然能覆盖它。这里不要再加 !important。 */
+article div[role="group"] > div.xqb-btn-wrap {
+  display: inline-flex;
+  align-items: center;
+}
 /* 不做圆形容器、不做背景：只有一个图标，靠 padding 参与操作栏的水平对齐 */
-.xqb-btn-wrap .xqb-btn, button.xqb-btn {
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  width: auto !important;
-  height: auto !important;
-  padding: 4px !important;
-  margin: 0 !important;
-  border: 0 !important;
-  border-radius: 0 !important;
-  background: none !important;
-  box-shadow: none !important;
-  color: rgb(113, 118, 123) !important;   /* 静默态与 X 其它操作图标同色 */
-  cursor: pointer !important;
-  line-height: 0 !important;
-  min-width: 0 !important;
-  min-height: 0 !important;
-  vertical-align: middle !important;
-  transition: color .15s !important;
+article div[role="group"] > .xqb-btn-wrap > button.xqb-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  height: auto;
+  padding: 4px;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  color: rgb(113, 118, 123);   /* 静默态与 X 其它操作图标同色 */
+  cursor: pointer;
+  line-height: 0;
+  min-width: 0;
+  min-height: 0;
+  vertical-align: middle;
+  transition: color .15s;
 }
-.xqb-btn-wrap {
-  display: inline-flex !important;
-  align-items: center !important;
-}
-.xqb-btn-wrap .xqb-btn svg, button.xqb-btn svg { display: block !important; }
+article div[role="group"] > .xqb-btn-wrap > button.xqb-btn svg { display: block; }
 
 /* 悬停只换颜色，不加底色 */
-.xqb-btn-wrap .xqb-btn:hover, button.xqb-btn:hover,
-.xqb-btn-wrap .xqb-btn:focus-visible, button.xqb-btn:focus-visible {
-  color: rgb(244, 33, 46) !important;
-  background: none !important;
+article div[role="group"] > .xqb-btn-wrap > button.xqb-btn:hover,
+article div[role="group"] > .xqb-btn-wrap > button.xqb-btn:focus-visible {
+  color: rgb(244, 33, 46);
+  background: none;
 }
-.xqb-btn-wrap .xqb-btn:focus-visible, button.xqb-btn:focus-visible {
-  outline: 2px solid rgba(244, 33, 46, .5) !important;
-  outline-offset: 1px !important;
+article div[role="group"] > .xqb-btn-wrap > button.xqb-btn:focus-visible {
+  outline: 2px solid rgba(244, 33, 46, .5);
+  outline-offset: 1px;
 }
 
-.xqb-btn-wrap .xqb-btn.xqb-busy, button.xqb-btn.xqb-busy { color: rgb(244,33,46) !important; cursor: default !important; }
-.xqb-btn-wrap .xqb-btn.xqb-done, button.xqb-btn.xqb-done { color: rgb(0,186,124) !important; cursor: default !important; }
-.xqb-btn-wrap .xqb-btn.xqb-fail, button.xqb-btn.xqb-fail { color: rgb(255,212,0) !important; }
+/* 状态类写在 hover 之后：特异性相同，靠顺序胜出 */
+article div[role="group"] > .xqb-btn-wrap > button.xqb-btn.xqb-busy { color: rgb(244,33,46); cursor: default; }
+article div[role="group"] > .xqb-btn-wrap > button.xqb-btn.xqb-done { color: rgb(0,186,124); cursor: default; }
+article div[role="group"] > .xqb-btn-wrap > button.xqb-btn.xqb-fail { color: rgb(255,212,0); }
 
-.xqb-defs { position:absolute !important; width:0 !important; height:0 !important; overflow:hidden !important; }
+/* mask 定义用的隐藏 svg 由 JS 直接写内联样式，这里不需要规则 */
 .xqb-spin { animation: xqb-spin .8s linear infinite; transform-origin: 50% 50%; }
 @keyframes xqb-spin { to { transform: rotate(360deg); } }
-@media (prefers-reduced-motion: reduce) { .xqb-defs { position:absolute !important; width:0 !important; height:0 !important; overflow:hidden !important; }
-.xqb-spin { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .xqb-spin { animation: none; } }
 
-/* tooltip：挂在 body 上 fixed 定位，避免被 X 的 overflow:hidden 祖先裁掉 */
-.xqb-tip {
-  position: fixed !important;
-  z-index: 2147483647 !important;
-  max-width: 260px !important;
-  padding: 4px 8px !important;
-  border-radius: 4px !important;
-  background: rgba(91, 112, 131, .95) !important;
-  color: #fff !important;
-  font: 400 12px/1.35 system-ui, -apple-system, "Segoe UI", sans-serif !important;
-  white-space: normal !important;
-  word-break: break-word !important;
-  pointer-events: none !important;
+/* tooltip：挂在 body 上 fixed 定位，避免被 X 的 overflow:hidden 祖先裁掉。
+   同一时间只有一个，所以用 id 锚定 */
+body > #xqb-tip {
+  position: fixed;
+  z-index: 2147483647;
+  max-width: 260px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: rgba(91, 112, 131, .95);
+  color: #fff;
+  font: 400 12px/1.35 system-ui, -apple-system, "Segoe UI", sans-serif;
+  white-space: normal;
+  word-break: break-word;
+  pointer-events: none;
   opacity: 0;
-  transition: opacity .12s ease !important;
+  transition: opacity .12s ease;
 }
-.xqb-tip.xqb-tip-in { opacity: 1; }
-@media (prefers-reduced-motion: reduce) { .xqb-tip { transition: none !important; } }
+body > #xqb-tip.xqb-tip-in { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { body > #xqb-tip { transition: none; } }
 
 article.xqb-hit { box-shadow: inset 3px 0 0 #f4212e; background: rgba(244,33,46,.045); }
 
