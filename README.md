@@ -1,6 +1,6 @@
 ![X Blocker — 一键屏蔽、关键词扫描、确认后批量处理](docs/hero.svg)
 
-[![GoodExts](https://img.shields.io/badge/By-GoodExts-20b8e5?style=flat-square&labelColor=0b1116)](https://goodexts.com) [![Manifest V3](https://img.shields.io/badge/Manifest-V3-20b8e5?style=flat-square&labelColor=0b1116)](https://developer.chrome.com/docs/extensions/develop/migrate/what-is-mv3) [![License: MIT](https://img.shields.io/badge/License-MIT-aec1cd?style=flat-square&labelColor=0b1116)](LICENSE) [![Chrome](https://img.shields.io/badge/Chrome-Extension-20b8e5?style=flat-square&labelColor=0b1116)](https://www.google.com/chrome/) [![Edge](https://img.shields.io/badge/Edge-Compatible-20b8e5?style=flat-square&labelColor=0b1116)](https://www.microsoft.com/edge)
+[![官网](https://img.shields.io/badge/官网-xblocker.goodexts.com-20b8e5?style=flat-square&labelColor=0b1116)](https://xblocker.goodexts.com/zh) [![GoodExts](https://img.shields.io/badge/By-GoodExts-20b8e5?style=flat-square&labelColor=0b1116)](https://goodexts.com) [![Manifest V3](https://img.shields.io/badge/Manifest-V3-20b8e5?style=flat-square&labelColor=0b1116)](https://developer.chrome.com/docs/extensions/develop/migrate/what-is-mv3) [![License: MIT](https://img.shields.io/badge/License-MIT-aec1cd?style=flat-square&labelColor=0b1116)](LICENSE) [![Chrome](https://img.shields.io/badge/Chrome-Extension-20b8e5?style=flat-square&labelColor=0b1116)](https://www.google.com/chrome/) [![Edge](https://img.shields.io/badge/Edge-Compatible-20b8e5?style=flat-square&labelColor=0b1116)](https://www.microsoft.com/edge)
 
 # X Blocker — X / Twitter 一键屏蔽 & 关键词批量拉黑 Chrome 扩展
 
@@ -152,6 +152,8 @@ X Blocker 属于 [GoodExts](https://goodexts.com) —— 一组只做好一件�
 
 - [X Video Downloader](https://xdown.goodexts.com) — 一键下载 X（推特）视频、GIF 和原图，可选画质，带下载历史
 - [X Article to PDF](https://xexport.goodexts.com/zh) — 把 X 长文和推文串导出为可搜索的 PDF / Markdown / HTML
+
+本扩展的官网（教程、词库示例、常见问题）：<https://xblocker.goodexts.com/zh>
 
 ## License
 
