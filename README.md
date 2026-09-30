@@ -151,7 +151,7 @@ docs/                     README 截图
 X Blocker 属于 [GoodExts](https://goodexts.com) —— 一组只做好一件事的小型浏览器扩展。同作者的其他 X 扩展：
 
 - [X Video Downloader](https://xdown.goodexts.com) — 一键下载 X（推特）视频、GIF 和原图，可选画质，带下载历史
-- [X Article to PDF](https://chromewebstore.google.com/detail/akmedeebhjkchcpocceffimhpmfjimhn) — 把 X 长文和推文串导出为可搜索的 PDF / Markdown / HTML
+- [X Article to PDF](https://xexport.goodexts.com/zh) — 把 X 长文和推文串导出为可搜索的 PDF / Markdown / HTML
 
 ## License
 
