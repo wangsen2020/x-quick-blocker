@@ -1,4 +1,10 @@
 {
+  "btnPanelTip": {
+    "message": "X Blocker（拖曳可移動位置）"
+  },
+  "panelTitle": {
+    "message": "X Blocker"
+  },
   "btnBlockTip": {
     "message": "封鎖 @$1"
   },

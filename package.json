@@ -1,0 +1,12 @@
+{
+  "name": "x-quick-blocker",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "repository": "https://github.com/wangsen2020/x-quick-blocker",
+  "scripts": {
+    "test": "node --test",
+    "lint": "node --check src/background.js && node --check src/content.js && node --check src/inject.js && node --check src/lib/site.js && node --check popup.js",
+    "zip": "node tools/zip.mjs"
+  }
+}

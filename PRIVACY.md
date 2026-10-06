@@ -1,8 +1,8 @@
 # Privacy Policy — X Blocker
 
-_Last updated: 2026-09-19_
+_Last updated: 2026-10-06_
 
-**X Blocker does not collect, transmit, sell, or share any personal or usage data with the developer or any third party.** It is a local-only Chrome extension: everything it does happens inside your own browser, talking directly to X's (Twitter's) own servers.
+**X Blocker does not collect, transmit, sell, or share any personal or usage data with the developer or any third party.** It is a local-only Chrome extension: blocking, scanning and settings stay in your browser, with block/unblock requests sent directly to X's (Twitter's) own servers. Installation and uninstall also open the product website as described below.
 
 ## What the extension does
 
@@ -16,7 +16,7 @@ None. The extension:
 
 - Has no backend server.
 - Uses no analytics, telemetry, or crash-reporting SDKs.
-- Does not send any data to the developer, ever.
+- Does not send timeline content, account identifiers, filters or action logs to the developer. Product website URLs carry only the technical metadata described below.
 
 ## Data storage
 
@@ -40,7 +40,11 @@ The extension requests no other permissions (no `tabs`, no `<all_urls>`, no `web
 
 ## Third parties
 
-None. All network requests go directly from your browser to X's own domains — the same requests the `x.com` website already makes when you use its built-in "Block" feature.
+Blocking requests go directly from your browser to X's own domains — the same requests the `x.com` website already makes when you use its built-in "Block" feature. The product website handles welcome visits and voluntary feedback separately, as described below.
+
+## Install welcome and voluntary uninstall feedback
+
+The extension stores its first install date locally and opens a localized welcome page on installation. Uninstalling opens a website page whose URL carries only the extension version, browser UI language, install date (when available), fixed `utm_*` values and the fixed product code `ext=xbl`. It carries no user or account identifier, filters, browsing history or action log. Submitting feedback and providing contact details or permission for an X direct message are voluntary. Feedback submitted on that page is handled by the website rather than the extension.
 
 ## Changes to this policy
 

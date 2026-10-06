@@ -1,4 +1,10 @@
 {
+  "btnPanelTip": {
+    "message": "X Blocker（ドラッグして移動）"
+  },
+  "panelTitle": {
+    "message": "X Blocker"
+  },
   "btnBlockTip": {
     "message": "@$1 をブロック"
   },

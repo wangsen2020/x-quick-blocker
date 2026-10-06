@@ -1,4 +1,10 @@
 {
+  "btnPanelTip": {
+    "message": "X Blocker (drag to move)"
+  },
+  "panelTitle": {
+    "message": "X Blocker"
+  },
   "btnBlockTip": {
     "message": "Block @$1"
   },

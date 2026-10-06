@@ -1,0 +1,8 @@
+# Keep development-only files out of `git archive`, i.e. out of the store zip.
+# test/ and tools/ are new in 0.5.0; without this they would ship to users.
+/test export-ignore
+/tools export-ignore
+/docs export-ignore
+/package.json export-ignore
+/.gitattributes export-ignore
+/.gitignore export-ignore

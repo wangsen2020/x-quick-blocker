@@ -1020,7 +1020,7 @@
 
   function buildPanel() {
     elBadge = h('span', { class: 'xqb-badge' });
-    const fab = h('div', { class: 'xqb-fab', title: 'X Quick Blocker（拖动可移动位置）' }, '🛡', elBadge);
+    const fab = h('div', { class: 'xqb-fab', title: t('btnPanelTip', null, 'X Blocker (drag to move)') }, '🛡', elBadge);
     fabEl = fab;
 
     elCand = h('div', { class: 'xqb-list' });
@@ -1096,7 +1096,7 @@ DM me`)),
     addTab('set', t('tabSettings', null, `Settings`), setBody);
 
     const head = h('div', { class: 'xqb-head' },
-      h('span', {}, 'X Quick Blocker'),
+      h('span', {}, t('panelTitle', null, 'X Blocker')),
       h('button', { class: 'xqb-x', onclick: () => panel.classList.remove('xqb-open') }, '×')
     );
     const content = h('div', { class: 'xqb-content' }, candBody, kwBody, logBody, setBody);
