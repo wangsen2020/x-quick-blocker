@@ -1,9 +1,8 @@
 """Rebrand the "pin the extension" GIF for X Blocker.
 
-python pin_gif.py <src pin-<locale>.gif from xdown-website> <out pin.gif> <extension name as Chrome shows it>
+python pin_gif.py <src guide_pin.gif> <out pin.gif> <extension name as Chrome shows it>
 
-The source is xdown-website's rendered GIF, so the icon to replace is X-blue (29,155,240)
-rather than WAExport's green. Everything else is unchanged.
+Source GIF: E:/WebstormProjects/waexport-website/public/images/guide_pin.gif (folder has an 's').
 
 Replaces, frame by frame, the extension row in Chrome's Extensions menu (icon + name) and the
 pinned toolbar icon. The mouse cursor is preserved: per background state a per-pixel median
@@ -27,10 +26,8 @@ TIP = (220, 41, 480, 68)      # hover tooltip under the pinned icon (shows the e
 TIP_FONT = ImageFont.truetype('C:/Windows/Fonts/segoeui.ttf', 13)
 
 def is_green(p):
-    # Kept under the original name so the rest of the script is untouched: this now matches the
-    # source icon being replaced, X-blue (29, 155, 240), not WAExport's green.
     r, g, b = p[:3]
-    return b > 150 and b > r + 60 and b > g + 40
+    return g > 110 and g > r + 40 and g > b + 20
 
 def green_count(f, box):
     x0, y0, x1, y1 = box
