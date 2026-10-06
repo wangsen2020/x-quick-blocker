@@ -5,8 +5,10 @@ import { execFileSync } from 'node:child_process';
 import { readFileSync, rmSync, existsSync } from 'node:fs';
 import { platform } from 'node:process';
 
+// The manifest is the single source of truth for an extension's version;
+// package.json deliberately carries none, so there is nothing to keep in sync.
 const { version } = JSON.parse(
-  readFileSync(new URL('../package.json', import.meta.url)),
+  readFileSync(new URL('../manifest.json', import.meta.url)),
 );
 const out = `x-quick-blocker-${version}.zip`;
 if (existsSync(out)) rmSync(out);
