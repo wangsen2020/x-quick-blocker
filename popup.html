@@ -1,15 +1,491 @@
-<!doctype html><meta charset="utf-8">
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>X Quick Blocker</title>
 <style>
- body{width:260px;margin:0;padding:14px;font:13px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;background:#16181c;color:#e7e9ea}
- h1{font-size:14px;margin:0 0 10px}
- label{display:flex;align-items:center;gap:8px;padding:5px 0}
- p{color:#71767b;font-size:12px;margin:10px 0 0}
- a{color:#1d9bf0}
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body {
+    width: 480px;
+    height: 580px;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background: #16181c;
+    color: #e7e9ea;
+    font: 12px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  .xqb-app {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+  }
+  .xqb-head {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    border-bottom: 1px solid #2f3336;
+  }
+  .xqb-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #e7e9ea;
+    white-space: nowrap;
+  }
+  .xqb-ver {
+    font-size: 11px;
+    color: #71767b;
+    white-space: nowrap;
+  }
+  .xqb-tabs {
+    flex: 0 0 auto;
+    display: flex;
+    border-bottom: 1px solid #2f3336;
+  }
+  .xqb-tab {
+    flex: 1 1 0;
+    height: 34px;
+    padding: 0 6px;
+    margin: 0;
+    background: none;
+    border: 0;
+    color: #71767b;
+    font: 12px/1 system-ui, -apple-system, "Segoe UI", sans-serif;
+    cursor: pointer;
+    text-align: center;
+    white-space: nowrap;
+  }
+  .xqb-tab:hover { color: #e7e9ea; }
+  .xqb-tab-on {
+    color: #e7e9ea;
+    font-weight: 600;
+    box-shadow: inset 0 -2px 0 #1d9bf0;
+  }
+  .xqb-tab-count {
+    display: inline-block;
+    margin-left: 4px;
+    padding: 1px 5px;
+    border-radius: 999px;
+    background: #f4212e;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1.3;
+    vertical-align: middle;
+  }
+  .xqb-content {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .xqb-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    overflow: hidden;
+  }
+  .xqb-list {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  .xqb-row {
+    display: flex;
+    align-items: flex-start;
+    padding: 8px 0;
+    border-bottom: 1px solid #22252a;
+  }
+  .xqb-row > input[type="checkbox"] {
+    flex: 0 0 auto;
+    margin: 2px 10px 0 0;
+    cursor: pointer;
+  }
+  .xqb-row-main {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin-right: 10px;
+  }
+  .xqb-row-main:last-child { margin-right: 0; }
+  .xqb-row-top {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .xqb-row-top > * { margin-right: 6px; }
+  .xqb-row-top > *:last-child { margin-right: 0; }
+  .xqb-handle {
+    color: #1d9bf0;
+    text-decoration: none;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .xqb-handle:hover { text-decoration: underline; }
+  .xqb-hit-tag {
+    color: #ffd400;
+    font-size: 11px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 240px;
+  }
+  .xqb-snippet {
+    color: #71767b;
+    font-size: 12px;
+    margin-top: 2px;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    word-break: break-word;
+  }
+  .xqb-ok { color: #00ba7c; font-weight: 600; }
+  .xqb-bad { color: #f4212e; font-weight: 600; }
+  .xqb-empty {
+    color: #71767b;
+    padding: 24px 10px;
+    text-align: center;
+    line-height: 1.5;
+  }
+  .xqb-confirm {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 10px;
+    margin-top: 8px;
+    background: #1f2328;
+    border: 1px solid #2f3336;
+    border-radius: 8px;
+  }
+  .xqb-confirm-msg {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin-right: 10px;
+    font-size: 12px;
+    color: #e7e9ea;
+  }
+  .xqb-confirm-btns {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+  }
+  .xqb-confirm-btns > button { margin-right: 10px; }
+  .xqb-confirm-btns > button:last-child { margin-right: 0; }
+  .xqb-actions {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    padding-top: 10px;
+    margin-top: 8px;
+    border-top: 1px solid #2f3336;
+  }
+  .xqb-actions > button { margin-right: 10px; }
+  .xqb-actions > button:last-child { margin-right: 0; }
+  .xqb-primary, .xqb-ghost {
+    height: 30px;
+    padding: 0 12px;
+    border-radius: 999px;
+    font: 600 12px/1 system-ui, -apple-system, "Segoe UI", sans-serif;
+    cursor: pointer;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .xqb-primary { background: #f4212e; color: #fff; border: 0; }
+  .xqb-primary:disabled { opacity: 0.45; cursor: default; }
+  .xqb-ghost { background: transparent; color: #e7e9ea; border: 1px solid #536471; font-weight: 500; }
+  .xqb-ghost:disabled { opacity: 0.45; cursor: default; }
+  .xqb-mini {
+    flex: 0 0 auto;
+    height: 28px;
+    padding: 0 10px;
+    background: transparent;
+    color: #71767b;
+    border: 1px solid #2f3336;
+    border-radius: 999px;
+    font: 12px/1 system-ui, -apple-system, "Segoe UI", sans-serif;
+    cursor: pointer;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .xqb-mini:hover { color: #e7e9ea; border-color: #536471; }
+  .xqb-mini:disabled { opacity: 0.5; cursor: default; }
+
+  /* Filters tab */
+  .xqb-field {
+    flex: 1 1 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px;
+  }
+  .xqb-field:last-child { margin-bottom: 0; }
+  .xqb-field-head {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    margin-bottom: 4px;
+  }
+  .xqb-field-head label {
+    color: #71767b;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .xqb-ta {
+    flex: 1 1 auto;
+    min-height: 0;
+    width: 100%;
+    background: #000;
+    color: #e7e9ea;
+    border: 1px solid #2f3336;
+    border-radius: 8px;
+    padding: 7px;
+    font: 12px/1.4 ui-monospace, Menlo, monospace;
+    resize: none;
+  }
+
+  /* Settings tab */
+  .xqb-set-group {
+    flex: 0 0 auto;
+    margin-bottom: 12px;
+  }
+  .xqb-set-group:last-child { margin-bottom: 0; }
+  .xqb-toggle {
+    display: flex;
+    align-items: center;
+    height: 30px;
+    cursor: pointer;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  .xqb-toggle > input[type="checkbox"] {
+    flex: 0 0 auto;
+    margin: 0 10px 0 0;
+    cursor: pointer;
+  }
+  .xqb-scope-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .xqb-scope-row > .xqb-toggle {
+    margin-right: 16px;
+  }
+  .xqb-scope-row > .xqb-toggle:last-child { margin-right: 0; }
+  .xqb-sub {
+    display: flex;
+    align-items: center;
+    color: #71767b;
+    font-size: 12px;
+    font-weight: 600;
+    margin: 0 0 6px;
+    padding-top: 10px;
+    border-top: 1px solid #22252a;
+  }
+  .xqb-num-grid {
+    display: flex;
+    align-items: center;
+  }
+  .xqb-num-cell {
+    flex: 1 1 0;
+    min-width: 0;
+    margin-right: 10px;
+    display: flex;
+    flex-direction: column;
+  }
+  .xqb-num-cell:last-child { margin-right: 0; }
+  .xqb-num-cell > span {
+    color: #71767b;
+    font-size: 12px;
+    margin-bottom: 4px;
+    white-space: nowrap;
+  }
+  .xqb-num {
+    width: 100%;
+    height: 30px;
+    background: #000;
+    color: #e7e9ea;
+    border: 1px solid #2f3336;
+    border-radius: 6px;
+    padding: 0 8px;
+    font-size: 12px;
+    line-height: 1;
+  }
+
+  /* Info-tip: 14px #769287 solid circle, white Arial 10px bold ? */
+  .xqb-info-tip {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    margin: 0 0 0 6px;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: #769287;
+    color: #fff;
+    font: 700 10px/14px Arial, sans-serif;
+    cursor: help;
+    vertical-align: middle;
+  }
+  .xqb-info-tip:focus-visible {
+    outline: 2px solid #1d9bf0;
+    outline-offset: 1px;
+  }
+  #xqbPopupTip {
+    position: fixed;
+    z-index: 200;
+    max-width: 240px;
+    padding: 5px 8px;
+    border-radius: 6px;
+    background: #2f3336;
+    color: #e7e9ea;
+    font: 12px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+    pointer-events: none;
+    white-space: normal;
+    word-break: break-word;
+    display: none;
+  }
+
+  .xqb-status {
+    flex: 0 0 auto;
+    padding: 8px 10px;
+    border-top: 1px solid #2f3336;
+    color: #71767b;
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .xqb-toast {
+    position: fixed;
+    left: 50%;
+    bottom: 42px;
+    transform: translate(-50%, 10px);
+    background: #1d9bf0;
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s, transform 0.2s;
+    max-width: 440px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    z-index: 100;
+  }
+  .xqb-toast-bad { background: #f4212e; }
+  .xqb-toast-show { opacity: 1; transform: translate(-50%, 0); }
 </style>
-<h1>X Quick Blocker</h1>
-<label><input type="checkbox" id="enabled"> <span data-i18n="optEnabled">Enable extension</span></label>
-<label><input type="checkbox" id="showInlineButton"> <span data-i18n="optInlineButton">Show block icon on posts</span></label>
-<label><input type="checkbox" id="scanEnabled"> <span data-i18n="optScan">Enable keyword scanning</span></label>
-<label><input type="checkbox" id="autoBlock"> <span data-i18n="optAuto">Fully automatic (block on match, no confirmation) ⚠️</span></label>
-<p data-i18n="popupNote">Filters, allowlist and throttling live in the 🛡 panel at the bottom right of x.com.</p>
+</head>
+<body>
+<div class="xqb-app">
+  <div class="xqb-head">
+    <span class="xqb-title" id="xqbTitle">X Quick Blocker</span>
+    <span class="xqb-ver" id="xqbVer"></span>
+  </div>
+  <div class="xqb-tabs" id="xqbTabs">
+    <button type="button" class="xqb-tab" data-tab="cand"><span id="tabCandLabel">Candidates</span><span class="xqb-tab-count" id="tabCandCount" style="display:none"></span></button>
+    <button type="button" class="xqb-tab" data-tab="kw" id="tabKw">Filters</button>
+    <button type="button" class="xqb-tab" data-tab="log" id="tabLog">Log</button>
+    <button type="button" class="xqb-tab" data-tab="set" id="tabSet">Settings</button>
+  </div>
+  <div class="xqb-content">
+    <div class="xqb-body" id="bodyCand" style="display:none">
+      <div class="xqb-list" id="listCand"></div>
+      <div class="xqb-confirm" id="confirmBar" style="display:none">
+        <span class="xqb-confirm-msg" id="confirmMsg"></span>
+        <div class="xqb-confirm-btns">
+          <button type="button" class="xqb-primary" id="btnConfirmYes">Confirm</button>
+          <button type="button" class="xqb-ghost" id="btnConfirmNo">Cancel</button>
+        </div>
+      </div>
+      <div class="xqb-actions">
+        <button type="button" class="xqb-ghost" id="btnSelectAll">Select all</button>
+        <button type="button" class="xqb-ghost" id="btnClearList">Clear</button>
+        <button type="button" class="xqb-primary" id="btnRunBatch">Block selected</button>
+        <button type="button" class="xqb-ghost" id="btnStopBatch" style="display:none">Stop</button>
+      </div>
+    </div>
+
+    <div class="xqb-body" id="bodyKw" style="display:none">
+      <div class="xqb-field">
+        <div class="xqb-field-head">
+          <label for="kwKeywords" id="lblKeywords">Keywords</label>
+          <button type="button" class="xqb-info-tip" data-tip-i18n="tipKeywords" aria-label="Keywords help">?</button>
+        </div>
+        <textarea class="xqb-ta" id="kwKeywords" data-key="keywords"></textarea>
+      </div>
+      <div class="xqb-field">
+        <div class="xqb-field-head">
+          <label for="kwRegexes" id="lblRegexes">Regex</label>
+          <button type="button" class="xqb-info-tip" data-tip-i18n="tipRegexes" aria-label="Regex help">?</button>
+        </div>
+        <textarea class="xqb-ta" id="kwRegexes" data-key="regexes"></textarea>
+      </div>
+      <div class="xqb-field">
+        <div class="xqb-field-head">
+          <label for="kwWhitelist" id="lblWhitelist">Allowlist</label>
+          <button type="button" class="xqb-info-tip" data-tip-i18n="tipWhitelist" aria-label="Allowlist help">?</button>
+        </div>
+        <textarea class="xqb-ta" id="kwWhitelist" data-key="whitelist"></textarea>
+      </div>
+    </div>
+
+    <div class="xqb-body" id="bodyLog" style="display:none">
+      <div class="xqb-list" id="listLog"></div>
+    </div>
+
+    <div class="xqb-body" id="bodySet" style="display:none">
+      <div class="xqb-set-group">
+        <label class="xqb-toggle"><input type="checkbox" data-key="enabled"> <span data-i18n="optEnabled">Enable extension</span></label>
+        <label class="xqb-toggle"><input type="checkbox" data-key="showInlineButton"> <span data-i18n="optInlineButton">Post block icon</span><button type="button" class="xqb-info-tip" data-tip-i18n="tipInlineButton" aria-label="Help">?</button></label>
+        <label class="xqb-toggle"><input type="checkbox" data-key="scanEnabled"> <span data-i18n="optScan">Keyword scanning</span><button type="button" class="xqb-info-tip" data-tip-i18n="tipScan" aria-label="Help">?</button></label>
+        <label class="xqb-toggle"><input type="checkbox" data-key="autoBlock"> <span data-i18n="optAuto">Auto-block ⚠️</span><button type="button" class="xqb-info-tip" data-tip-i18n="tipAuto" aria-label="Help">?</button></label>
+        <label class="xqb-toggle"><input type="checkbox" data-key="removeBlockedDom"> <span data-i18n="optRemoveDom">Remove posts on block</span><button type="button" class="xqb-info-tip" data-tip-i18n="tipRemoveDom" aria-label="Help">?</button></label>
+        <label class="xqb-toggle"><input type="checkbox" data-key="detectObfuscated"> <span data-i18n="optDetectObf">Hidden-char detection</span><button type="button" class="xqb-info-tip" data-tip-i18n="tipDetectObf" aria-label="Help">?</button></label>
+      </div>
+
+      <div class="xqb-set-group">
+        <div class="xqb-sub"><span data-i18n="secMatchScope">Match scope</span></div>
+        <div class="xqb-scope-row">
+          <label class="xqb-toggle"><input type="checkbox" data-key="matchText"> <span data-i18n="optMatchText">Post text</span></label>
+          <label class="xqb-toggle"><input type="checkbox" data-key="matchName"> <span data-i18n="optMatchName">Display name</span></label>
+          <label class="xqb-toggle"><input type="checkbox" data-key="matchHandle"> <span data-i18n="optMatchHandle">Handle</span></label>
+          <label class="xqb-toggle"><input type="checkbox" data-key="matchBio"> <span data-i18n="optMatchBio">Bio</span><button type="button" class="xqb-info-tip" data-tip-i18n="tipMatchBio" aria-label="Help">?</button></label>
+        </div>
+      </div>
+
+      <div class="xqb-set-group">
+        <div class="xqb-sub"><span data-i18n="secThrottle">Throttling</span><button type="button" class="xqb-info-tip" data-tip-i18n="tipThrottle" aria-label="Help">?</button></div>
+        <div class="xqb-num-grid">
+          <label class="xqb-num-cell"><span data-i18n="fieldDelay">Delay (ms)</span><input type="number" class="xqb-num" data-key="minDelayMs" min="300" max="60000"></label>
+          <label class="xqb-num-cell"><span data-i18n="fieldJitter">Jitter (ms)</span><input type="number" class="xqb-num" data-key="jitterMs" min="0" max="10000"></label>
+          <label class="xqb-num-cell"><span data-i18n="fieldMaxPerRun">Max / run</span><input type="number" class="xqb-num" data-key="maxPerRun" min="1" max="500"></label>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="xqb-status" id="xqbStatus">Ready</div>
+</div>
+<div id="xqbPopupTip" role="tooltip"></div>
+<script src="src/lib/config.js"></script>
 <script src="popup.js"></script>
+</body>
+</html>

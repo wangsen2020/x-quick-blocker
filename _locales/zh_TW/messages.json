@@ -217,5 +217,47 @@
   },
   "hitObfuscated": {
     "message": "隱形字元混淆（$1%）"
+  },
+  "emptyNeedXTab": {
+    "message": "請在 x.com 頁面開啟以檢視目前頁面的候選清單"
+  },
+  "errNoXTab": {
+    "message": "請先開啟任意 x.com 頁面再執行解除封鎖"
+  },
+  "btnConfirm": {
+    "message": "確認"
+  },
+  "btnCancel": {
+    "message": "取消"
+  },
+  "tipInlineButton": {
+    "message": "Show a quick block icon on each post's action bar"
+  },
+  "tipScan": {
+    "message": "Automatically scan posts against your filters and regexes"
+  },
+  "tipAuto": {
+    "message": "Block matched accounts immediately without confirmation"
+  },
+  "tipRemoveDom": {
+    "message": "Immediately remove the blocked author's posts from the page"
+  },
+  "tipDetectObf": {
+    "message": "Flag posts heavily padded with invisible/zero-width characters"
+  },
+  "tipMatchBio": {
+    "message": "Matched only when the user's bio has been captured"
+  },
+  "tipThrottle": {
+    "message": "Going too fast can trigger X rate limits. Keep delay ≥1500ms and cap ≤50"
+  },
+  "tipKeywords": {
+    "message": "One per line, case-insensitive"
+  },
+  "tipRegexes": {
+    "message": "One per line, JS syntax, no slashes"
+  },
+  "tipWhitelist": {
+    "message": "Handles never to block, one per line, without @"
   }
 }

@@ -5,35 +5,7 @@
   const FALLBACK_BEARER =
     'Bearer AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA';
 
-  const DEFAULTS = {
-    enabled: true,
-    showInlineButton: true,
-    scanEnabled: false,          // 关键词扫描开关
-    autoBlock: false,            // false = 半自动：命中先进候选列表，人工确认后执行
-    keywords: [],                // 普通关键词（不区分大小写）
-    regexes: [],                 // 正则，字符串形式
-    whitelist: [],               // 永不屏蔽的 handle（不带 @）
-    matchText: true,
-    matchName: true,
-    matchHandle: true,
-    matchBio: true,              // 依赖 hook 抓到的资料，抓不到就跳过
-    minDelayMs: 1500,            // 每次屏蔽之间的间隔
-    jitterMs: 800,
-    maxPerRun: 50,               // 单次批量上限
-    removeBlockedDom: true,      // 屏蔽成功后把该作者的推文/评论从当前页面移除
-    detectObfuscated: true,      // 兜底：正文被隐形字符大量填充的，不看词库直接进候选
-    logLimit: 500,
-    defaultsSeedVersion: 0,      // 内置词库合并到用户配置的版本号，见 seedDefaultFilters()
-  };
-
-  // 内置默认关键词——常见的“同城/擦边”引流评论话术。首次启动（或版本号
-  // 提升）时会一次性合并进用户已有的词库，之后用户自己删掉就不会再加回来。
-  const DEFAULT_SEED_VERSION = 2;
-  const DEFAULT_KEYWORDS = [
-    '没人比我', '我福不黑', '不信你看', '同城上门', '比我好看',
-    '不进入生活', '不入生活', '只入身体', '处男无偿', '我玩的开',
-    '比我骚', '没我好看', '果然太涩', '太涩了',
-  ];
+  const { DEFAULTS, seedDefaultFilters } = globalThis.XQB_CONFIG;
   // 垃圾评论的主流绕过手法是往每个汉字之间插零宽字符（ZWNJ/ZWJ/WORD JOINER…），
   // 页面上一个像素都看不出来，但 innerText 里 "比我好看" 会变成十几个字符，
   // 纯关键词和宽松正则全部落空。匹配前统一抹掉这些不可见字符。
@@ -74,15 +46,6 @@
     return out;
   }
 
-  // 逐字之间允许穿插 0~3 个任意字符（空格/标点/emoji），
-  // 应对垃圾评论常见的加空格、加表情绕过纯关键词匹配的手法
-  function loosePattern(phrase) {
-    return Array.from(phrase)
-      .map((c) => c.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
-      .join('.{0,3}?');
-  }
-  const DEFAULT_REGEXES = DEFAULT_KEYWORDS.map(loosePattern);
-
   let cfg = Object.assign({}, DEFAULTS);
   let log = [];
   let idMap = new Map();          // screen_name(lower) -> user_id
@@ -97,7 +60,7 @@
   let running = false;
   let stopFlag = false;
   let scanTimer = null;
-  let fabPos = null;             // 悬浮球位置 {left, top}（px）；null = 用 CSS 默认角落
+  let lastStatus = '';
 
   /* ---------------- storage ---------------- */
   const store = chrome.storage.local;
@@ -152,7 +115,7 @@
 
   function loadAll() {
     return new Promise((res) => {
-      storeGet(['xqb_config', 'xqb_log', 'xqb_idmap', 'xqb_qid', 'xqb_feat', 'xqb_fab_pos'], (r) => {
+      storeGet(['xqb_config', 'xqb_log', 'xqb_idmap', 'xqb_qid', 'xqb_feat'], (r) => {
         // 配置：chrome.storage 没有就回填 localStorage 里的镜像，并写回主存
         let savedCfg = r.xqb_config;
         if (!savedCfg) {
@@ -160,42 +123,18 @@
           if (mirror && typeof mirror === 'object') { savedCfg = mirror; storeSet({ xqb_config: mirror }); }
         }
         cfg = Object.assign({}, DEFAULTS, savedCfg || {});
-        seedDefaultFilters();       // 内置词库合并进用户配置（仅追加，见函数注释）
+        if (seedDefaultFilters(cfg)) saveCfg();
         lsSet('xqb_config', cfg);   // 每次启动刷新镜像
 
         log = r.xqb_log || [];
         if (r.xqb_idmap) idMap = new Map(Object.entries(r.xqb_idmap));
         if (r.xqb_qid) qidMap = new Map(Object.entries(r.xqb_qid));
         if (r.xqb_feat) gqlFeatures = r.xqb_feat;
-
-        let savedPos = r.xqb_fab_pos || lsGet('xqb_fab_pos');
-        if (savedPos && typeof savedPos.left === 'number') {
-          fabPos = savedPos;
-          storeSet({ xqb_fab_pos: savedPos });
-          lsSet('xqb_fab_pos', savedPos);
-        }
         res();
       });
     });
   }
   const saveCfg = () => { storeSet({ xqb_config: cfg }); lsSet('xqb_config', cfg); };
-
-  // 把内置默认词库/正则合并进 cfg（并集，不覆盖用户已有内容）。只在
-  // defaultsSeedVersion 落后于 DEFAULT_SEED_VERSION 时跑一次并落盘；
-  // 之后用户手动删掉某条默认词，不会在下次启动时又被加回来。
-  function seedDefaultFilters() {
-    if ((cfg.defaultsSeedVersion || 0) >= DEFAULT_SEED_VERSION) return false;
-    const kwSet = new Set(cfg.keywords || []);
-    const reSet = new Set(cfg.regexes || []);
-    let changed = false;
-    for (const k of DEFAULT_KEYWORDS) if (!kwSet.has(k)) { kwSet.add(k); changed = true; }
-    for (const r of DEFAULT_REGEXES) if (!reSet.has(r)) { reSet.add(r); changed = true; }
-    cfg.keywords = Array.from(kwSet);
-    cfg.regexes = Array.from(reSet);
-    cfg.defaultsSeedVersion = DEFAULT_SEED_VERSION;
-    saveCfg();
-    return changed;
-  }
   const saveQid = () => storeSet({ xqb_qid: Object.fromEntries(qidMap) });
   const saveFeat = () => storeSet({ xqb_feat: gqlFeatures });
   const saveLog = () => storeSet({ xqb_log: log.slice(0, cfg.logLimit) });
@@ -208,13 +147,46 @@
     }, 3000);
   }
 
+  function rescanAllTweets(clearCand) {
+    if (clearCand) {
+      candidates.clear();
+      updateBadge();
+    }
+    if (!cfg.enabled || !cfg.showInlineButton) {
+      document.querySelectorAll('article[data-testid="tweet"] .xqb-btn-wrap').forEach((w) => w.remove());
+    }
+    document.querySelectorAll('article[data-testid="tweet"]').forEach((a) => {
+      a.dataset.xqb = '';
+      a.classList.remove('xqb-hit');
+    });
+    scanAll();
+    notifyPopup();
+  }
+
   try {
     chrome.storage.onChanged.addListener((ch, area) => {
       if (!extAlive()) return;
       if (area === 'local' && ch.xqb_config) {
+        const prev = cfg;
         cfg = Object.assign({}, DEFAULTS, ch.xqb_config.newValue || {});
-        lsSet('xqb_config', cfg);   // popup 改的也镜像一份
-        syncPanelFromCfg();
+        lsSet('xqb_config', cfg);
+        const scanOff = !cfg.enabled || !cfg.scanEnabled;
+        const filterChanged =
+          prev.enabled !== cfg.enabled ||
+          prev.showInlineButton !== cfg.showInlineButton ||
+          prev.scanEnabled !== cfg.scanEnabled ||
+          prev.detectObfuscated !== cfg.detectObfuscated ||
+          prev.matchText !== cfg.matchText ||
+          prev.matchName !== cfg.matchName ||
+          prev.matchHandle !== cfg.matchHandle ||
+          prev.matchBio !== cfg.matchBio ||
+          JSON.stringify(prev.keywords) !== JSON.stringify(cfg.keywords) ||
+          JSON.stringify(prev.regexes) !== JSON.stringify(cfg.regexes) ||
+          JSON.stringify(prev.whitelist) !== JSON.stringify(cfg.whitelist);
+        if (filterChanged) rescanAllTweets(scanOff || prev.detectObfuscated !== cfg.detectObfuscated);
+        if (cfg.enabled && cfg.scanEnabled && cfg.autoBlock && !prev.autoBlock && candidates.size && !running) {
+          queueAuto();
+        }
       }
     });
   } catch (e) {}
@@ -376,7 +348,6 @@
     log.unshift(Object.assign({ t: Date.now() }, entry));
     log = log.slice(0, cfg.logLimit);
     saveLog();
-    renderLog();
   }
 
   /* ---------------- tweet parsing ---------------- */
@@ -585,8 +556,8 @@
         blockedThisSession.add(info.handle.toLowerCase());
         pushLog({ handle: info.handle, name: info.name, reason: 'manual', ok: true, url: info.url });
         candidates.delete(info.handle.toLowerCase());
-        renderCandidates();
         updateBadge();
+        notifyPopup();
         if (cfg.removeBlockedDom) {
           const n = removeByHandle(info.handle);
           toast(n > 1 ? t('toastBlockedRemoved', [info.handle, n], `Blocked @${info.handle} — removed ${n} posts`) : t('toastBlocked', [info.handle], `Blocked @${info.handle}`));
@@ -631,8 +602,8 @@
             handle: info.handle, name: info.name, url: info.url,
             snippet: (info.text || '').slice(0, 120), hit: hit.hit, checked: true,
           });
-          renderCandidates();
           updateBadge();
+          notifyPopup();
           if (cfg.autoBlock) queueAuto();
         }
       }
@@ -659,18 +630,7 @@
     return n;
   }
 
-  // 悬浮球只在「有推文可操作」的页面出现：时间线、详情页、搜索结果、书签……
-  // 消息私信、设置、Grok 对话这类页面上一个都不判断，靠是否存在推文节点直接
-  // 判定即可，比维护一堆 URL 规则更省事，SPA 内跳转也能自动跟上。
-  function updateFabVisibility() {
-    if (!fabEl) return;
-    const hasPosts = !!document.querySelector('article[data-testid="tweet"]');
-    fabEl.style.display = hasPosts ? '' : 'none';
-    if (!hasPosts && panel) panel.classList.remove('xqb-open');
-  }
-
   function scanAll() {
-    updateFabVisibility();
     // 已屏蔽的账号如果被 X 重新渲染回来（切 Tab、虚拟列表回收复用），再清一次
     if (cfg.removeBlockedDom && blockedThisSession.size) {
       for (const hk of blockedThisSession) removeByHandle(hk);
@@ -733,14 +693,13 @@
           }
         }
 
-        // 面板刷新失败不能中断批量
+        // 通知 popup 刷新不能中断批量
         try {
-          renderCandidates();
           updateBadge();
           setStatus(t('statusRunning', [done, fail, Math.max(0, list.length - done - fail)], `Running: ${done} done / ${fail} failed / ${Math.max(0, list.length - done - fail)} left`) +
             (lastErr ? t('statusLastFail', [lastErr], ` | last error: ${lastErr}`) : ''));
         } catch (e) {
-          console.warn('[xqb] panel refresh error (batch continues)', e);
+          console.warn('[xqb] status refresh error (batch continues)', e);
         }
 
         if (i < list.length - 1 && !stopFlag) {
@@ -765,9 +724,7 @@
     }, 1200);
   }
 
-  /* ---------------- UI ---------------- */
-  let panel, elCand, elLog, elStatus, elBadge, elRunBtn, elStopBtn, fabEl;
-
+  /* ---------------- popup bridge & page toast ---------------- */
   function toast(msg, bad) {
     const t = document.createElement('div');
     t.className = 'xqb-toast' + (bad ? ' xqb-toast-bad' : '');
@@ -777,359 +734,102 @@
     setTimeout(() => { t.classList.remove('xqb-show'); setTimeout(() => t.remove(), 300); }, 3200);
   }
 
-  const setStatus = (s) => { if (elStatus) elStatus.textContent = s; };
-  function setRunUI(on) {
-    if (elRunBtn) elRunBtn.disabled = on;
-    if (elStopBtn) elStopBtn.style.display = on ? '' : 'none';
+  function getStatePayload() {
+    return {
+      candidates: Array.from(candidates.values()),
+      running,
+      status: lastStatus || t('statusReady', null, 'Ready'),
+    };
   }
+
+  function notifyPopup() {
+    if (!extAlive()) return;
+    try {
+      chrome.runtime.sendMessage({ type: 'xqb:stateUpdate', state: getStatePayload() }, () => {
+        // popup 未打开时没有接收方，读取 lastError 避免未捕获提示
+        void (chrome.runtime && chrome.runtime.lastError);
+      });
+    } catch (e) {}
+  }
+
+  function setStatus(s) {
+    lastStatus = s;
+    notifyPopup();
+  }
+
+  function setRunUI() {
+    notifyPopup();
+  }
+
   function updateBadge() {
-    if (elBadge) {
-      const n = candidates.size;
-      elBadge.textContent = n ? String(n) : '';
-      elBadge.style.display = n ? '' : 'none';
-    }
+    if (!extAlive()) return;
+    try {
+      chrome.runtime.sendMessage({ type: 'xqb:badge', count: candidates.size }, () => {
+        void (chrome.runtime && chrome.runtime.lastError);
+      });
+    } catch (e) {}
   }
 
-  function h(tag, attrs, ...kids) {
-    const e = document.createElement(tag);
-    for (const k in attrs || {}) {
-      if (k === 'class') e.className = attrs[k];
-      else if (k.startsWith('on')) e.addEventListener(k.slice(2), attrs[k]);
-      else if (k === 'html') e.innerHTML = attrs[k];
-      else e.setAttribute(k, attrs[k]);
-    }
-    for (const kid of kids) if (kid != null) e.append(kid);
-    return e;
-  }
-
-  function renderCandidates() {
-    if (!elCand) return;
-    elCand.textContent = '';
-    if (!candidates.size) {
-      elCand.append(h('div', { class: 'xqb-empty' }, cfg.scanEnabled ? t('emptyScanOn', null, `No matches yet — keep scrolling`) : t('emptyScanOff', null, `Scanning is off (turn it on in Settings)`)));
-      return;
-    }
-    for (const c of candidates.values()) {
-      const cb = h('input', { type: 'checkbox' });
-      cb.checked = c.checked !== false;
-      cb.addEventListener('change', () => { c.checked = cb.checked; });
-      elCand.append(
-        h('div', { class: 'xqb-row' },
-          cb,
-          h('div', { class: 'xqb-row-main' },
-            h('div', { class: 'xqb-row-top' },
-              h('a', { class: 'xqb-handle', href: `/${c.handle}`, target: '_blank' }, `@${c.handle}`),
-              h('span', { class: 'xqb-hit-tag' }, c.hit || '')
-            ),
-            h('div', { class: 'xqb-snippet' }, c.snippet || '')
-          ),
-          h('button', { class: 'xqb-mini', onclick: () => { candidates.delete(c.handle.toLowerCase()); renderCandidates(); updateBadge(); } }, t('btnIgnore', null, `Ignore`))
-        )
-      );
-    }
-  }
-
-  // 日志里的 reason 存的是稳定标识（'manual' / 'batch' / {k:'hit',v:词}），
-  // 渲染时才本地化。历史日志里存的是中文字符串，原样显示，不做迁移。
-  function reasonText(r) {
-    if (!r) return '';
-    if (typeof r === 'object' && r.k === 'hit') return t('reasonHit', [r.v], `Matched “${r.v}”`);
-    if (r === 'manual') return t('reasonManual', null, `Manual`);
-    if (r === 'batch') return t('reasonBatch', null, `Batch`);
-    return String(r);
-  }
-
-  function renderLog() {
-    if (!elLog) return;
-    elLog.textContent = '';
-    if (!log.length) { elLog.append(h('div', { class: 'xqb-empty' }, t('emptyLog', null, `No entries`))); return; }
-    for (const l of log.slice(0, 100)) {
-      elLog.append(
-        h('div', { class: 'xqb-row' },
-          h('div', { class: 'xqb-row-main' },
-            h('div', { class: 'xqb-row-top' },
-              h('span', { class: l.ok ? 'xqb-ok' : 'xqb-bad' }, l.ok ? '✓' : '✗'),
-              h('a', { class: 'xqb-handle', href: `/${l.handle}`, target: '_blank' }, `@${l.handle}`),
-              h('span', { class: 'xqb-hit-tag' }, reasonText(l.reason))
-            ),
-            h('div', { class: 'xqb-snippet' }, (l.err || '') + '  ' + new Date(l.t).toLocaleString())
-          ),
-          l.ok ? h('button', {
-            class: 'xqb-mini',
-            onclick: async (e) => {
-              e.target.textContent = '···';
-              try { await unblockUser(l.handle); e.target.textContent = t('btnUnblocked', null, `Unblocked`); }
-              catch (err) { e.target.textContent = t('btnFailedShort', null, `Failed`); toast(String(err.message || err), true); }
-            },
-          }, t('btnUnblock', null, `Unblock`)) : null
-        )
-      );
-    }
-  }
-
-  function listInput(labelText, key, placeholder) {
-    const ta = h('textarea', { class: 'xqb-ta', placeholder, rows: '4' });
-    ta.value = (cfg[key] || []).join('\n');
-    ta.addEventListener('change', () => {
-      cfg[key] = ta.value.split('\n').map((s) => s.trim()).filter(Boolean);
-      saveCfg();
-      toast(t('toastListSaved', [labelText, cfg[key].length], `${labelText} saved (${cfg[key].length} entries)`));
-      document.querySelectorAll('article[data-testid="tweet"]').forEach((a) => { a.dataset.xqb = ''; a.classList.remove('xqb-hit'); });
-      scanAll();
-    });
-    ta.dataset.key = key;
-    return h('div', { class: 'xqb-field' }, h('label', {}, labelText), ta);
-  }
-
-  function toggle(labelText, key, onChange) {
-    const cb = h('input', { type: 'checkbox' });
-    cb.checked = !!cfg[key];
-    cb.dataset.key = key;
-    cb.addEventListener('change', () => { cfg[key] = cb.checked; saveCfg(); if (onChange) onChange(); });
-    return h('label', { class: 'xqb-toggle' }, cb, labelText);
-  }
-
-  function numField(labelText, key, min, max) {
-    const i = h('input', { type: 'number', class: 'xqb-num', min: String(min), max: String(max) });
-    i.value = cfg[key];
-    i.dataset.key = key;
-    i.addEventListener('change', () => {
-      const v = Math.max(min, Math.min(max, Number(i.value) || min));
-      cfg[key] = v; i.value = v; saveCfg();
-    });
-    return h('label', { class: 'xqb-toggle' }, labelText, i);
-  }
-
-  function syncPanelFromCfg() {
-    if (!panel) return;
-    panel.querySelectorAll('[data-key]').forEach((el) => {
-      const k = el.dataset.key;
-      if (el.type === 'checkbox') el.checked = !!cfg[k];
-      else if (el.tagName === 'TEXTAREA') el.value = (cfg[k] || []).join('\n');
-      else el.value = cfg[k];
-    });
-  }
-
-  /* ---------------- 悬浮球：拖拽 + 位置持久化 ---------------- */
-  function applyFabPos(el, pos) {
-    el.style.left = `${Math.round(pos.left)}px`;
-    el.style.top = `${Math.round(pos.top)}px`;
-    el.style.right = 'auto';
-    el.style.bottom = 'auto';
-  }
-  // 把当前位置夹回可视区内（窗口缩放、分辨率变化后不至于飞出屏幕）
-  function clampFabPos(el) {
-    const r = el.getBoundingClientRect();
-    const maxX = Math.max(4, window.innerWidth - r.width - 4);
-    const maxY = Math.max(4, window.innerHeight - r.height - 4);
-    return {
-      left: Math.min(Math.max(4, r.left), maxX),
-      top: Math.min(Math.max(4, r.top), maxY),
-    };
-  }
-  // 面板尺寸与 panel.css 里的 .xqb-panel 保持一致（固定宽高）
-  const PANEL_W = 380;
-  const PANEL_H = 560;
-  function panelSize() {
-    return { w: PANEL_W, h: Math.min(PANEL_H, window.innerHeight - 24) };
-  }
-  // 把面板夹进视窗内（整块可见，不会被顶出去）
-  function clampPanelXY(left, top) {
-    const { w, h } = panelSize();
-    return {
-      left: Math.max(8, Math.min(left, window.innerWidth - w - 8)),
-      top: Math.max(8, Math.min(top, window.innerHeight - h - 8)),
-    };
-  }
-  function setPanelXY(left, top) {
-    const p = clampPanelXY(left, top);
-    panel.style.left = `${Math.round(p.left)}px`;
-    panel.style.top = `${Math.round(p.top)}px`;
-    panel.style.right = 'auto';
-    panel.style.bottom = 'auto';
-  }
-  // 面板跟随悬浮球：优先开在球的上方、右缘对齐；上方放不下就翻到下方
-  function positionPanel() {
-    if (!panel || !fabEl) return;
-    const r = fabEl.getBoundingClientRect();
-    const { w, h } = panelSize();
-    let top = r.top - h - 10;
-    if (top < 8) top = r.bottom + 10;
-    setPanelXY(r.right - w, top);
-  }
-  // 面板可用标题栏拖动（万一位置不理想能拽回来）
-  function makePanelDraggable(handle) {
-    let dragging = false, sx = 0, sy = 0, ox = 0, oy = 0;
-    handle.addEventListener('pointerdown', (e) => {
-      if (e.button !== 0 || (e.target && e.target.closest && e.target.closest('.xqb-x'))) return;
-      dragging = true;
-      const r = panel.getBoundingClientRect();
-      sx = e.clientX; sy = e.clientY; ox = r.left; oy = r.top;
-      try { handle.setPointerCapture(e.pointerId); } catch (_) {}
-      e.preventDefault();
-    });
-    handle.addEventListener('pointermove', (e) => {
-      if (!dragging) return;
-      setPanelXY(ox + (e.clientX - sx), oy + (e.clientY - sy));
-    });
-    const end = (e) => {
-      if (!dragging) return;
-      dragging = false;
-      try { handle.releasePointerCapture(e.pointerId); } catch (_) {}
-    };
-    handle.addEventListener('pointerup', end);
-    handle.addEventListener('pointercancel', end);
-  }
-  // 拖动位移超过阈值算「拖拽」，否则算「点击」（切换面板）
-  function makeFabDraggable(el, onClick) {
-    let dragging = false, moved = false, sx = 0, sy = 0, ox = 0, oy = 0;
-    el.addEventListener('pointerdown', (e) => {
-      if (e.button !== 0) return;
-      dragging = true; moved = false;
-      const r = el.getBoundingClientRect();
-      sx = e.clientX; sy = e.clientY; ox = r.left; oy = r.top;
-      try { el.setPointerCapture(e.pointerId); } catch (_) {}
-      el.style.transition = 'none';
-      e.preventDefault();
-    });
-    el.addEventListener('pointermove', (e) => {
-      if (!dragging) return;
-      const dx = e.clientX - sx, dy = e.clientY - sy;
-      if (!moved && Math.hypot(dx, dy) > 4) moved = true;
-      if (moved) applyFabPos(el, { left: ox + dx, top: oy + dy });
-    });
-    const end = (e, allowClick) => {
-      if (!dragging) return;
-      dragging = false;
-      try { el.releasePointerCapture(e.pointerId); } catch (_) {}
-      el.style.transition = '';
-      if (moved) {
-        fabPos = clampFabPos(el);
-        applyFabPos(el, fabPos);
-        storeSet({ xqb_fab_pos: fabPos });
-        lsSet('xqb_fab_pos', fabPos);
-        if (panel && panel.classList.contains('xqb-open')) positionPanel();
-      } else if (allowClick) {
-        onClick();
+  try {
+    chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
+      if (!extAlive() || !msg || typeof msg.type !== 'string') return;
+      if (msg.type === 'xqb:getState') {
+        sendResponse({ ok: true, state: getStatePayload() });
+        return;
       }
-    };
-    el.addEventListener('pointerup', (e) => end(e, true));
-    el.addEventListener('pointercancel', (e) => end(e, false));
-    el.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); });
-  }
-
-  function buildPanel() {
-    elBadge = h('span', { class: 'xqb-badge' });
-    const fab = h('div', { class: 'xqb-fab', title: t('btnPanelTip', null, 'X Blocker (drag to move)') }, '🛡', elBadge);
-    fabEl = fab;
-
-    elCand = h('div', { class: 'xqb-list' });
-    elLog = h('div', { class: 'xqb-list' });
-    elStatus = h('div', { class: 'xqb-status' }, t('statusReady', null, `Ready`));
-
-    elRunBtn = h('button', {
-      class: 'xqb-primary',
-      onclick: () => {
+      if (msg.type === 'xqb:toggleCandidate') {
+        const c = candidates.get(String(msg.handle || '').toLowerCase());
+        if (c) c.checked = !!msg.checked;
+        sendResponse({ ok: true, state: getStatePayload() });
+        return;
+      }
+      if (msg.type === 'xqb:selectAll') {
+        candidates.forEach((c) => { c.checked = true; });
+        sendResponse({ ok: true, state: getStatePayload() });
+        return;
+      }
+      if (msg.type === 'xqb:clearCandidates') {
+        candidates.clear();
+        updateBadge();
+        sendResponse({ ok: true, state: getStatePayload() });
+        return;
+      }
+      if (msg.type === 'xqb:ignoreCandidate') {
+        candidates.delete(String(msg.handle || '').toLowerCase());
+        updateBadge();
+        sendResponse({ ok: true, state: getStatePayload() });
+        return;
+      }
+      if (msg.type === 'xqb:runBatch') {
         const list = Array.from(candidates.values()).filter((c) => c.checked !== false);
-        if (!list.length) return toast(t('toastNoChecked', null, `Nothing selected`));
-        if (!confirm(t('confirmBatch', [list.length, (cfg.minDelayMs / 1000).toFixed(1)], `Block ${list.length} accounts, about ${(cfg.minDelayMs / 1000).toFixed(1)}s apart. Continue?`))) return;
-        runBatch(list);
-      },
-    }, t('btnBlockChecked', null, `Block selected`));
-    elStopBtn = h('button', { class: 'xqb-ghost', onclick: () => { stopFlag = true; toast(t('toastStopRequested', null, `Stop requested`)); } }, t('btnStop', null, `Stop`));
-    elStopBtn.style.display = 'none';
-
-    const tabs = {};
-    const bodies = {};
-    const tabBar = h('div', { class: 'xqb-tabs' });
-    function addTab(id, label, body) {
-      const b = h('button', { class: 'xqb-tab', onclick: () => selectTab(id) }, label);
-      tabs[id] = b; bodies[id] = body; tabBar.append(b);
-    }
-    function selectTab(id) {
-      for (const k in tabs) {
-        tabs[k].classList.toggle('xqb-tab-on', k === id);
-        bodies[k].style.display = k === id ? '' : 'none';
+        if (list.length && !running) runBatch(list);
+        sendResponse({ ok: true, state: getStatePayload() });
+        return;
       }
-    }
-
-    const candBody = h('div', { class: 'xqb-body' },
-      elCand,
-      // 操作行固定在面板底部，不随列表滚动
-      h('div', { class: 'xqb-actions' },
-        h('button', { class: 'xqb-ghost', onclick: () => { candidates.forEach((c) => (c.checked = true)); renderCandidates(); } }, t('btnSelectAll', null, `Select all`)),
-        h('button', { class: 'xqb-ghost', onclick: () => { candidates.clear(); renderCandidates(); updateBadge(); } }, t('btnClearList', null, `Clear`)),
-        elRunBtn, elStopBtn
-      )
-    );
-
-    const kwBody = h('div', { class: 'xqb-body' },
-      listInput(t('labelKeywords', null, `Keywords (one per line, case-insensitive)`), 'keywords', t('phKeywords', null, `crypto airdrop
-giveaway
-DM me`)),
-      listInput(t('labelRegexes', null, `Regex (one per line, JS syntax, no slashes)`), 'regexes', t('phRegexes', null, `^(?=.*airdrop)(?=.*DM).*$`)),
-      listInput(t('labelWhitelist', null, `Allowlist handles (one per line, no @)`), 'whitelist', t('phWhitelist', null, `yourfriend`))
-    );
-
-    const setBody = h('div', { class: 'xqb-body' },
-      toggle(t('optEnabled', null, `Enable extension`), 'enabled', () => scanAll()),
-      toggle(t('optInlineButton', null, `Show block icon on posts`), 'showInlineButton', () => location.reload()),
-      toggle(t('optScan', null, `Enable keyword scanning`), 'scanEnabled', () => { candidates.clear(); renderCandidates(); scanAll(); }),
-      toggle(t('optAuto', null, `Fully automatic (block on match, no confirmation) ⚠️`), 'autoBlock'),
-      toggle(t('optRemoveDom', null, `Remove their posts from the page after blocking`), 'removeBlockedDom'),
-      toggle(t('optDetectObf', null, `Also flag posts padded with hidden characters`), 'detectObfuscated', () => { candidates.clear(); renderCandidates(); scanAll(); }),
-      h('div', { class: 'xqb-sub' }, t('secMatchScope', null, `Match against:`)),
-      toggle(t('optMatchText', null, `Post text`), 'matchText'), toggle(t('optMatchName', null, `Display name`), 'matchName'),
-      toggle(t('optMatchHandle', null, `Handle`), 'matchHandle'), toggle(t('optMatchBio', null, `Bio (when available)`), 'matchBio'),
-      h('div', { class: 'xqb-sub' }, t('secThrottle', null, `Throttling:`)),
-      numField(t('fieldDelay', null, `Delay ms`), 'minDelayMs', 300, 60000),
-      numField(t('fieldJitter', null, `Jitter ms`), 'jitterMs', 0, 10000),
-      numField(t('fieldMaxPerRun', null, `Max per run`), 'maxPerRun', 1, 500),
-      h('div', { class: 'xqb-note' }, t('noteThrottle', null, `Going too fast can trigger X's rate limits or account checks. Keep the delay at 1.5s or more and the cap at 50 or fewer.`))
-    );
-
-    const logBody = h('div', { class: 'xqb-body' }, elLog);
-
-    addTab('cand', t('tabCandidates', null, `Candidates`), candBody);
-    addTab('kw', t('tabKeywords', null, `Filters`), kwBody);
-    addTab('log', t('tabLog', null, `Log`), logBody);
-    addTab('set', t('tabSettings', null, `Settings`), setBody);
-
-    const head = h('div', { class: 'xqb-head' },
-      h('span', {}, t('panelTitle', null, 'X Blocker')),
-      h('button', { class: 'xqb-x', onclick: () => panel.classList.remove('xqb-open') }, '×')
-    );
-    const content = h('div', { class: 'xqb-content' }, candBody, kwBody, logBody, setBody);
-    panel = h('div', { class: 'xqb-panel' }, head, tabBar, content, elStatus);
-    selectTab('cand');
-
-    function togglePanel() {
-      const open = panel.classList.toggle('xqb-open');
-      if (open) positionPanel();
-    }
-    makeFabDraggable(fab, togglePanel);
-    makePanelDraggable(head);
-    document.body.append(fab, panel);
-
-    if (fabPos) { applyFabPos(fab, fabPos); fabPos = clampFabPos(fab); applyFabPos(fab, fabPos); }
-    window.addEventListener('resize', () => {
-      if (fabPos) { fabPos = clampFabPos(fab); applyFabPos(fab, fabPos); }
-      if (panel.classList.contains('xqb-open')) positionPanel();
+      if (msg.type === 'xqb:stopBatch') {
+        stopFlag = true;
+        toast(t('toastStopRequested', null, 'Stop requested'));
+        sendResponse({ ok: true, state: getStatePayload() });
+        return;
+      }
+      if (msg.type === 'xqb:unblock') {
+        unblockUser(msg.handle)
+          .then(() => sendResponse({ ok: true }))
+          .catch((err) => sendResponse({ ok: false, err: friendly(err) }));
+        return true;
+      }
     });
-
-    renderCandidates();
-    renderLog();
-    updateBadge();
-  }
+  } catch (e) {}
 
   /* ---------------- boot ---------------- */
   loadAll().then(() => {
     // 回放 document_idle 之前 hook 已经抓到的映射
     try { window.postMessage({ __xqbReq: 'flush' }, location.origin); } catch (e) {}
     setTimeout(() => { try { window.postMessage({ __xqbReq: 'flush' }, location.origin); } catch (e) {} }, 2500);
-    buildPanel();
+    lastStatus = t('statusReady', null, 'Ready');
     detectSelf();
     scanAll();
+    updateBadge();
     mo.observe(document.body, { childList: true, subtree: true });
     scanTimer = setInterval(scanAll, 2000);
   });

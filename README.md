@@ -26,6 +26,7 @@
 
 ## 功能
 
+- **1.0.0** — 移除页面右下角悬浮唤醒图标，将候选/词库/日志/设置整合进统一的浏览器工具栏 Popup（无纵向滚动条，精简文案 + 圆圈问号悬浮提示），并支持工具栏角标计数与配置实时生效。
 - **0.5.0** — 新增本地化安装欢迎页、自愿卸载反馈页，并修复悬浮按钮提示和面板名称。
 
 ![X Blocker 功能概览：一键屏蔽、关键词筛选、节流退避、确认与撤销](docs/features.svg)
@@ -45,7 +46,7 @@
 2. 打开 `chrome://extensions/`
 3. 右上角打开 **开发者模式**
 4. 点 **加载已解压的扩展程序**，选中解压出来的目录
-5. 打开 x.com（需已登录），页面右下角会出现 🛡 按钮
+5. 打开 x.com（需已登录），点击浏览器工具栏上的 **X Blocker** 扩展图标即可打开统一配置与候选面板
 
 > **装好后先随便点开一个用户主页一次。** 插件需要从这一次访问里学到 X 的内部查询参数（`UserByScreenName` 的 queryId），学到后会存在本地，之后一直有效。跳过这步可能会遇到「拿不到 user_id」。
 
@@ -63,7 +64,7 @@
 
 ### 2. 配置关键词
 
-点右下角 🛡 打开面板 → **词库** 页：
+点击浏览器工具栏上的 **X Blocker** 扩展图标 → **词库** 页：
 
 ![词库配置](docs/03-keywords.png)
 
@@ -103,7 +104,7 @@
 
 - MV3，两段 content script：
   - `src/inject.js` 跑在 MAIN world，**只读**地 hook `fetch` / `XHR`，做三件事：抓 X 网页自己用的 `authorization` 头（避免硬编码 bearer 过期）、从时间线 GraphQL 响应里抽 `screen_name → rest_id` 映射、从请求 URL 里学习 GraphQL 的 `queryId`。它不修改任何请求或响应内容。
-  - `src/content.js` 跑在 ISOLATED world，负责 UI、匹配和调用接口。
+  - `src/content.js` 跑在 ISOLATED world，负责推文内嵌屏蔽按钮、匹配和调用接口；`popup.html` / `popup.js` 负责统一弹窗配置、候选、词库与日志。
 - 屏蔽走 X 网页版自己的内部接口 `POST /i/api/1.1/blocks/create.json`（`user_id=...`），带页面 cookie + `x-csrf-token: ct0`；解除走 `blocks/destroy.json`。
 - **user_id 的解析链**（页面 DOM 里只有 `@handle`，没有数字 id）：
   1. hook 缓存的 `screen_name → rest_id`（大多数情况走这条，零额外请求）
