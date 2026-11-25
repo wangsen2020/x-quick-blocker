@@ -36,3 +36,13 @@ chrome.runtime.onInstalled.addListener(async (details) => {
   }
   if (details.reason === 'install' || details.reason === 'update') await setUninstallUrl();
 });
+
+chrome.runtime.onMessage.addListener((msg, sender) => {
+  if (!msg || msg.type !== 'xqb:badge' || !sender || !sender.tab || sender.tab.id == null) return;
+  const tabId = sender.tab.id;
+  const count = Number(msg.count) || 0;
+  try {
+    chrome.action.setBadgeText({ text: count > 0 ? String(count) : '', tabId });
+    if (count > 0) chrome.action.setBadgeBackgroundColor({ color: '#f4212e', tabId });
+  } catch (e) {}
+});

@@ -108,19 +108,19 @@
     "message": "Enable extension"
   },
   "optInlineButton": {
-    "message": "Show block icon on posts"
+    "message": "Post block icon"
   },
   "optScan": {
-    "message": "Enable keyword scanning"
+    "message": "Keyword scanning"
   },
   "optAuto": {
-    "message": "Fully automatic (block on match, no confirmation) ⚠️"
+    "message": "Auto-block ⚠️"
   },
   "optRemoveDom": {
-    "message": "Remove their posts from the page after blocking"
+    "message": "Remove posts on block"
   },
   "secMatchScope": {
-    "message": "Match against:"
+    "message": "Match scope"
   },
   "optMatchText": {
     "message": "Post text"
@@ -132,31 +132,31 @@
     "message": "Handle"
   },
   "optMatchBio": {
-    "message": "Bio (when available)"
+    "message": "Bio"
   },
   "secThrottle": {
-    "message": "Throttling:"
+    "message": "Throttling"
   },
   "fieldDelay": {
-    "message": "Delay ms"
+    "message": "Delay (ms)"
   },
   "fieldJitter": {
-    "message": "Jitter ms"
+    "message": "Jitter (ms)"
   },
   "fieldMaxPerRun": {
-    "message": "Max per run"
+    "message": "Max / run"
   },
   "noteThrottle": {
     "message": "Going too fast can trigger X's rate limits or account checks. Keep the delay at 1.5s or more and the cap at 50 or fewer."
   },
   "labelKeywords": {
-    "message": "Keywords (one per line, case-insensitive)"
+    "message": "Keywords"
   },
   "labelRegexes": {
-    "message": "Regex (one per line, JS syntax, no slashes)"
+    "message": "Regex"
   },
   "labelWhitelist": {
-    "message": "Allowlist handles (one per line, no @)"
+    "message": "Allowlist"
   },
   "phKeywords": {
     "message": "crypto airdrop\ngiveaway\nDM me"
@@ -213,9 +213,51 @@
     "message": "Failed"
   },
   "optDetectObf": {
-    "message": "Also flag posts padded with hidden characters"
+    "message": "Hidden-char detection"
   },
   "hitObfuscated": {
     "message": "Hidden-character obfuscation ($1%)"
+  },
+  "emptyNeedXTab": {
+    "message": "Open an x.com tab to view page candidates"
+  },
+  "errNoXTab": {
+    "message": "Please open an x.com tab first to unblock"
+  },
+  "btnConfirm": {
+    "message": "Confirm"
+  },
+  "btnCancel": {
+    "message": "Cancel"
+  },
+  "tipInlineButton": {
+    "message": "Show a quick block icon on each post's action bar"
+  },
+  "tipScan": {
+    "message": "Automatically scan posts against your filters and regexes"
+  },
+  "tipAuto": {
+    "message": "Block matched accounts immediately without confirmation"
+  },
+  "tipRemoveDom": {
+    "message": "Immediately remove the blocked author's posts from the page"
+  },
+  "tipDetectObf": {
+    "message": "Flag posts heavily padded with invisible/zero-width characters"
+  },
+  "tipMatchBio": {
+    "message": "Matched only when the user's bio has been captured"
+  },
+  "tipThrottle": {
+    "message": "Going too fast can trigger X rate limits. Keep delay ≥1500ms and cap ≤50"
+  },
+  "tipKeywords": {
+    "message": "One per line, case-insensitive"
+  },
+  "tipRegexes": {
+    "message": "One per line, JS syntax, no slashes"
+  },
+  "tipWhitelist": {
+    "message": "Handles never to block, one per line, without @"
   }
 }

@@ -217,5 +217,47 @@
   },
   "hitObfuscated": {
     "message": "숨은 문자 난독화($1%)"
+  },
+  "emptyNeedXTab": {
+    "message": "후보 목록을 보려면 x.com 탭을 열어주세요"
+  },
+  "errNoXTab": {
+    "message": "차단을 해제하려면 먼저 x.com 탭을 열어주세요"
+  },
+  "btnConfirm": {
+    "message": "확인"
+  },
+  "btnCancel": {
+    "message": "취소"
+  },
+  "tipInlineButton": {
+    "message": "Show a quick block icon on each post's action bar"
+  },
+  "tipScan": {
+    "message": "Automatically scan posts against your filters and regexes"
+  },
+  "tipAuto": {
+    "message": "Block matched accounts immediately without confirmation"
+  },
+  "tipRemoveDom": {
+    "message": "Immediately remove the blocked author's posts from the page"
+  },
+  "tipDetectObf": {
+    "message": "Flag posts heavily padded with invisible/zero-width characters"
+  },
+  "tipMatchBio": {
+    "message": "Matched only when the user's bio has been captured"
+  },
+  "tipThrottle": {
+    "message": "Going too fast can trigger X rate limits. Keep delay ≥1500ms and cap ≤50"
+  },
+  "tipKeywords": {
+    "message": "One per line, case-insensitive"
+  },
+  "tipRegexes": {
+    "message": "One per line, JS syntax, no slashes"
+  },
+  "tipWhitelist": {
+    "message": "Handles never to block, one per line, without @"
   }
 }
